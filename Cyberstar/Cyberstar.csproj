@@ -12,9 +12,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="assets\textures\atlas\dev_ships.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <Content Include="assets/**/*.*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>

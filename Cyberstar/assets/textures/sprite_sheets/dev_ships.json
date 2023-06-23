@@ -1,0 +1,26 @@
+{
+  "sprites":[
+    {
+      "name": "red_ship",
+      "frames": [
+        {
+          "x": 24,
+          "y": 29,
+          "width": 102,
+          "height": 67
+        }
+      ]
+    },
+    {
+      "name": "blue_ship",
+      "frames": [
+        {
+          "x": 23,
+          "y": 146,
+          "width": 102,
+          "height": 64
+        }
+      ]
+    }
+  ]
+}
