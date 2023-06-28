@@ -1,10 +1,10 @@
 namespace Cyberstar.Tests.ECS;
 
-public struct IntEntity
+public struct IntComponent
 {
     public int Int;
 
-    public IntEntity(int i)
+    public IntComponent(int i)
     {
         Int = i;
     }

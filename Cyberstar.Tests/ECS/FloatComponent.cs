@@ -1,10 +1,10 @@
 namespace Cyberstar.Tests.ECS;
 
-public class FloatEntity
+public struct FloatComponent
 {
     public float Float;
 
-    public FloatEntity(float f)
+    public FloatComponent(float f)
     {
         Float = f;
     }

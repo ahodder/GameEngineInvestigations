@@ -106,10 +106,58 @@ public class EntityManagerTests
         Assert.That(self.GetChildrenCount(e), Is.EqualTo(0));
     }
 
+    [Test]
+    public void TestGetComponents()
+    {
+        var self = CreateEntityManager();
+
+        var e1 = self.CreateEntity();
+
+        Assert.False(self.HasComponentFor<FloatComponent>(e1));
+        Assert.False(self.HasComponentFor<IntComponent>(e1));
+        
+        self.SetComponentFor(e1, new FloatComponent(3.14f));
+        self.SetComponentFor(e1, new IntComponent(1337));
+
+        Assert.True(self.TryGetComponentFor<FloatComponent>(e1, out var fc));
+        Assert.True(self.TryGetComponentFor<IntComponent>(e1, out var ic));
+
+        Assert.That(fc.Float, Is.EqualTo(3.14f));
+        Assert.That(ic.Int, Is.EqualTo(1337));
+    }
+
+    // [Test]
+    // public void TestManipulatingComponentsRetainsData()
+    // {
+    //     var em = CreateEntityManager();
+    //     var e1 = CreateEntityWith(em, 1.5f, 15);
+    //     var e2 = CreateEntityWith(em, 3f, 30);
+    //     var e3 = CreateEntityWith(em, 4.5f, 45);
+    //     var e4 = CreateEntityWith(em, 6f, 60);
+    //     
+    //     Assert.True(em.DoesEntityExist(e1));
+    //     Assert.True(em.DoesEntityExist(e2));
+    //     Assert.True(em.DoesEntityExist(e4));
+    //
+    //     Assert.True(em.DoesEntityExist(e1));
+    //     Assert.True(em.DoesEntityExist(e2));
+    //     Assert.False(em.DoesEntityExist(e3));
+    //     Assert.True(em.DoesEntityExist(e4));
+    //     
+    //     Assert.That(em.Get)
+    // }
+
     private EntityManager CreateEntityManager()
     {
         var logger = new Mock<ILogger>();
         var self = new EntityManager(logger.Object, 8);
         return self;
+    }
+
+    private Entity CreateEntityWith(EntityManager em, float f, int i)
+    {
+        var ret = em.CreateEntity();
+        em.SetComponentsFor(ret, new FloatComponent(f), new IntComponent(i));
+        return ret;
     }
 }

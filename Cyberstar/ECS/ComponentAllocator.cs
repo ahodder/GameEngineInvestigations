@@ -53,12 +53,18 @@ public interface IComponentAllocator<T> : IComponentAllocator where T : struct
 
 public class ComponentAllocator<T> : IComponentAllocator<T> where T : struct
 {
+    private const int InitialCapacity = 16;
+    
     private readonly Dictionary<Entity, int> _entityToIndex;
     private readonly Dictionary<int, Entity> _indexToEntity;
     private Memory<T> _components;
     private int _head;
 
-    public ComponentAllocator(int initialCapacity = 16)
+    public ComponentAllocator() : this(InitialCapacity)
+    {
+    }
+
+    public ComponentAllocator(int initialCapacity = InitialCapacity)
     {
         _entityToIndex = new Dictionary<Entity, int>();
         _indexToEntity = new Dictionary<int, Entity>();

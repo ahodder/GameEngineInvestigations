@@ -1,3 +1,4 @@
+using Cyberstar.Core;
 using Cyberstar.Logging;
 
 namespace Cyberstar.ECS;
@@ -26,6 +27,11 @@ public class EntityManager
     /// </summary>
     private Dictionary<Entity, int> _entityToNodeIndex;
     private Queue<int> _destroyedEntities;
+    
+    /// <summary>
+    /// The dictionary that maps types to component allocators.
+    /// </summary>
+    private Dictionary<Type, IComponentAllocator> _componentAllocators;
 
     /// <summary>
     /// This is the maximum number of entities that existed at one time.
@@ -44,6 +50,7 @@ public class EntityManager
         _entityRelations = new Memory<Relation>(new Relation[initialCapacity]);
         _entityToNodeIndex = new Dictionary<Entity, int>();
         _destroyedEntities = new Queue<int>();
+        _componentAllocators = new Dictionary<Type, IComponentAllocator>();
     }
 
     /// <summary>
@@ -252,6 +259,100 @@ public class EntityManager
         var newMem = new Memory<Relation>(new Relation[_entityRelations.Length]);
         _entityRelations.CopyTo(newMem);
         _entityRelations = newMem;
+    }
+
+    public bool TryGetComponentFor<T>(Entity entity, out T outComponent) where T : struct
+    {
+        var allocator = this.GetAllocatorFor<T>();
+        if (allocator.Success)
+            if (allocator.Data.TryGet(entity, out outComponent))
+                return true;
+
+        outComponent = default;
+        return false;
+    }
+    
+    public void SetComponentFor<T>(Entity entity, T component) where T : struct
+    {
+        var allocator = this.GetAllocatorFor<T>();
+        if (allocator.Success)
+        {
+            if (allocator.Data.HasComponentForEntity(entity))
+                allocator.Data.Set(entity, component);
+            else
+                allocator.Data.Add(entity, component);
+        }
+    }
+    
+    public void RemoveComponentFor<T>(Entity entity) where T : struct
+    {
+        var allocator = this.GetAllocatorFor<T>();
+        if (allocator.Success)
+            allocator.Data.Remove(entity);
+    }
+
+    public bool HasComponentFor<T>(Entity entity) where T : struct
+    {
+        var allocator = this.GetAllocatorFor<T>();
+        if (allocator.Success)
+            return allocator.Data.HasComponentForEntity(entity);
+        return false;
+    } 
+
+    public Result<IComponentAllocator> GetAllocatorFor(Type type)
+    {
+        if (_componentAllocators.TryGetValue(type, out var allocator))
+            return allocator.Success();
+
+        return new Result<IComponentAllocator>($"Failed to find allocator for {type.Name}");
+    }
+
+    public void SetAllocatorFor(Type type, IComponentAllocator allocator)
+    {
+        _componentAllocators[type] = allocator;
+    }
+    
+    public uint FindEntitiesWith(Type[] allocatorTypes, Entity[] entityBuffer, uint offset = 0, uint count = int.MaxValue)
+    {
+        /* todo ahodder@praethos.com 6/29/22: remove this allocation */
+        var allocators = new List<IComponentAllocator>();
+        
+        // Ensure all allocators are present
+        for (var i = 0; i < allocatorTypes.Length; i++)
+        {
+            if (_componentAllocators.TryGetValue(allocatorTypes[i], out var a))
+                allocators.Add(a);
+            else
+                return 0;
+        }
+        
+        var max = Math.Min(entityBuffer.Length, offset + count);
+        var cnt = 0u;
+
+        for (var i = offset; i < max; i++)
+        {
+            var hasAllAllocators = true;
+            for (var j = 0; j < allocators.Count; j++)
+            {
+                var allocator = allocators[j];
+                var entityWrapper = _allEntities.Span[(int)i];
+                if (!entityWrapper.Alive || !allocator.HasComponentForEntity(entityWrapper.Entity))
+                {
+                    hasAllAllocators = false;
+                    break;
+                }                
+            }
+        
+            if (hasAllAllocators)
+            {
+                var k = offset + cnt;
+                var entityWrapper = _allEntities.Span[(int)k];
+                entityBuffer[cnt] = entityWrapper.Entity;
+                cnt++;
+            }
+        }
+
+        return cnt;
     }
 
     /// <summary>
