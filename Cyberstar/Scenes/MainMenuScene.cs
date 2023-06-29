@@ -13,9 +13,10 @@ public class MainMenuScene : Scene
     public Button Settings;
     public Button Exit;
 
+    private SceneManager _sceneManager;
     private UiRenderer _uiRenderer;
 
-    public MainMenuScene(ILogger logger, AssetManager assets) : base(logger, assets)
+    public MainMenuScene(SceneManager sceneManager, ILogger logger, AssetManager assets) : base(logger, assets)
     {
         var font = assets.FontAtlas.DefaultFont;
         var fontSize = 25;
@@ -49,6 +50,7 @@ public class MainMenuScene : Scene
         Exit.Dimensions.Margin.Set(10);
         Exit.OnClick += OnExitClicked;
 
+        _sceneManager = sceneManager;
         _uiRenderer = new UiRenderer(assets.FontAtlas);
     }
 
@@ -91,6 +93,6 @@ public class MainMenuScene : Scene
 
     public void OnExitClicked()
     {
-        Console.WriteLine("Exit Clicked");
+        _sceneManager.ApplicationCloseRequested = true;
     }
 }

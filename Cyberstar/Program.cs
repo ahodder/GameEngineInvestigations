@@ -1,8 +1,6 @@
-﻿using System.Numerics;
-using Cyberstar.AssetManagement;
+﻿using Cyberstar.AssetManagement;
 using Cyberstar.Logging;
 using Cyberstar.Scenes;
-using Cyberstar.UI;
 using Raylib_cs;
 
 Raylib.InitWindow(1200, 800, "Hello, world");
@@ -12,16 +10,17 @@ Raylib.InitWindow(1200, 800, "Hello, world");
 
 var logger = new FileLogger("Logs.txt");
 var assets = new AssetManager();
-var activeScene = new MainMenuScene(logger, assets);
+var sceneManager = new SceneManager(logger, assets);
+sceneManager.BeginLoadActiveScene(new MainMenuScene(sceneManager, logger, assets));
 
-while (!Raylib.WindowShouldClose())
+while (!Raylib.WindowShouldClose() && !sceneManager.ApplicationCloseRequested)
 {
     Raylib.BeginDrawing();
     Raylib.ClearBackground(Color.BLACK);
     
-    activeScene.ReadInput();
-    activeScene.UpdateState();
-    activeScene.Render();
+    sceneManager.ReadInput();
+    sceneManager.UpdateState();
+    sceneManager.Render();
     
     Raylib.EndDrawing();
 }
