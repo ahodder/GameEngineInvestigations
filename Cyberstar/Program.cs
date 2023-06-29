@@ -9,9 +9,12 @@ Raylib.InitWindow(1200, 800, "Hello, world");
 
 // var texture = Raylib.LoadTexture("assets/textures/atlas/dev_ships.png");
 
-var logger = new FileLogger("Logs.txt");
-var assets = new AssetManager();
+var logger = Log.Instance = new ConsoleLogger();
+var assets = new AssetManager(logger, "assets");
 var sceneManager = new SceneManager(logger, assets);
+
+var loadTexture = assets.TryLoadSpriteAtlas("dev_ships", out var atlas);
+
 sceneManager.BeginLoadActiveScene(new MainMenuScene(sceneManager, logger, assets));
 
 FrameTiming ft = new FrameTiming();

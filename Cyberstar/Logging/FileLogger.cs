@@ -12,8 +12,11 @@ public class FileLogger : ILogger, IDisposable
     
     public void Log(ELogLevel logLevel, string category, string message, Exception? e = null)
     {
-        var msg = $"{DateTime.Now}: {logLevel} [{category}]- {message}";
-        _writer.WriteLine(msg);
+        lock (_writer)
+        {
+            var msg = $"[{logLevel}] {DateTime.Now} {category}\n{message}\n{(e != null ? e : string.Empty)}";
+            _writer.WriteLine(msg);
+        }
     }
 
     public void Dispose()
