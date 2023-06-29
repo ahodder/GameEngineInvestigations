@@ -1,4 +1,5 @@
 using System.Numerics;
+using Cyberstar.AssetManagement;
 using Cyberstar.UI.ViewFragments;
 using Raylib_cs;
 
@@ -28,6 +29,15 @@ public class UiRenderer
         {
             button.OnClick?.Invoke();
         }
+    }
+
+    /// <summary>
+    /// Draws a label to the screen.
+    /// </summary>
+    /// <param name="label"></param>
+    public void DrawLabel(in Label label)
+    {
+        RenderTextFragment(label.Dimensions, label.Text);
     }
 
     /// <summary>

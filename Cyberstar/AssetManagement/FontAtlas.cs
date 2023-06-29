@@ -1,6 +1,6 @@
 using Raylib_cs;
 
-namespace Cyberstar.UI;
+namespace Cyberstar.AssetManagement;
 
 public readonly struct FontId
 {

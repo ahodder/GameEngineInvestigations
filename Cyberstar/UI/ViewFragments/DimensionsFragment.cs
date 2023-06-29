@@ -50,30 +50,34 @@ public struct DimensionsFragment
 {
     public Thickness Margin;
     public Thickness Padding;
-    public Rectangle Bounds;
+    public Point Position;
+    public Point ContentSize;
 
-    public int ContentStartX => Bounds.X;
-    public int ContentStartY => Bounds.Y;
+    public int ContentStartX => Margin.Left + Padding.Left + Position.X;
+    public int ContentStartY => Margin.Top + Padding.Top + Position.Y;
 
-    public int ContentWidth => Bounds.Width;
-    public int ContentHeight => Bounds.Height;
+    public int ContentWidth => ContentSize.X;
+    public int ContentHeight => ContentSize.Y;
 
-    public int PaddedStartX => Bounds.X - Padding.Left;
-    public int PaddedStartY => Bounds.Y - Padding.Top;
+    public int PaddedStartX => Position.X + Margin.Left;
+    public int PaddedStartY => Position.Y + Margin.Top;
 
-    public int PaddedWidth => Padding.Width + Bounds.Width;
-    public int PaddedHeight => Padding.Height + Bounds.Height;
+    public int PaddedWidth => ContentSize.X + Padding.Width;
+    public int PaddedHeight => ContentSize.Y + Padding.Height;
 
-    public int ActualX => Bounds.X - Padding.Left - Margin.Left;
-    public int ActualY => Bounds.Y - Padding.Top - Margin.Top;
-    public int ActualWidth => Margin.Width + Padding.Width + Bounds.Width;
-    public int ActualHeight => Margin.Height + Padding.Height + Bounds.Height;
+    public int ActualX => Position.X;
+    public int ActualY => Position.Y;
+    public int ActualWidth => Margin.Width + Padding.Width + ContentSize.X;
+    public int ActualHeight => Margin.Height + Padding.Height + ContentSize.Y;
+
+    public int Bottom => ActualY + ActualHeight;
 
     public DimensionsFragment(int x, int y, int width, int height)
     {
         Margin = Thickness.Zero;
         Padding = Thickness.Zero;
-        Bounds = new Rectangle(x, y, width, height);
+        Position = new Point(x, y);
+        ContentSize = new Point(width, height);
     }
 
     public bool Contains(Vector2 position)

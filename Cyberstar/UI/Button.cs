@@ -24,9 +24,9 @@ public struct Button
             Font = font,
             Text = buttonText,
             FontSize = fontSize,
-            TextColor = Color.WHITE,
+            TextColor = Color.BLACK,
         };
-
+        
         Dimensions = new DimensionsFragment(x, y, (int)MathF.Ceiling(size.X), (int)MathF.Ceiling(size.Y));
     }
 
