@@ -1,4 +1,5 @@
 using Cyberstar.AssetManagement;
+using Cyberstar.Core;
 using Cyberstar.ECS;
 using Cyberstar.Logging;
 
@@ -17,8 +18,6 @@ public abstract class Scene
         Assets = assets;
         EntityManager = new EntityManager(logger, 128);
     }
-    
-    public abstract void ReadInput();
-    public abstract void UpdateState();
-    public abstract void Render();
+
+    public abstract void PerformTick(FrameTiming frameTiming);
 }

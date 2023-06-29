@@ -1,4 +1,5 @@
 ﻿using Cyberstar.AssetManagement;
+using Cyberstar.Core;
 using Cyberstar.Logging;
 using Cyberstar.Scenes;
 using Raylib_cs;
@@ -13,14 +14,15 @@ var assets = new AssetManager();
 var sceneManager = new SceneManager(logger, assets);
 sceneManager.BeginLoadActiveScene(new MainMenuScene(sceneManager, logger, assets));
 
+FrameTiming ft = new FrameTiming();
 while (!Raylib.WindowShouldClose() && !sceneManager.ApplicationCloseRequested)
 {
+    ft.Fps = Raylib.GetFPS();
+    ft.DeltaTime = Raylib.GetFrameTime();
     Raylib.BeginDrawing();
     Raylib.ClearBackground(Color.BLACK);
     
-    sceneManager.ReadInput();
-    sceneManager.UpdateState();
-    sceneManager.Render();
+    sceneManager.PerformTick(ft);
     
     Raylib.EndDrawing();
 }

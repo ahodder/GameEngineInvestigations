@@ -1,4 +1,5 @@
 using Cyberstar.AssetManagement;
+using Cyberstar.Core;
 using Cyberstar.Logging;
 using Cyberstar.UI;
 using Raylib_cs;
@@ -54,15 +55,13 @@ public class MainMenuScene : Scene
         _uiRenderer = new UiRenderer(assets.FontAtlas);
     }
 
-    public override void ReadInput()
+    public override void PerformTick(FrameTiming frameTiming)
     {
+        RenderUi();
     }
 
-    public override void UpdateState()
-    {
-    }
-
-    public override void Render()
+    
+    public void RenderUi() 
     {
         _uiRenderer.DrawButton(Continue);
         _uiRenderer.DrawButton(NewGame);

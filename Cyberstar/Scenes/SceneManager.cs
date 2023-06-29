@@ -1,4 +1,5 @@
 using Cyberstar.AssetManagement;
+using Cyberstar.Core;
 using Cyberstar.Logging;
 
 namespace Cyberstar.Scenes;
@@ -17,18 +18,8 @@ public class SceneManager : Scene
         ActiveScene = scene;
     }
 
-    public override void ReadInput()
+    public override void PerformTick(FrameTiming frameTiming)
     {
-        ActiveScene.ReadInput();
-    }
-
-    public override void UpdateState()
-    {
-        ActiveScene.UpdateState();
-    }
-
-    public override void Render()
-    {
-        ActiveScene.Render();
+        ActiveScene.PerformTick(frameTiming);
     }
 }
