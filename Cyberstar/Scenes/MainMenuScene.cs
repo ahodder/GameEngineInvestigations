@@ -77,7 +77,7 @@ public class MainMenuScene : Scene
     
     public void OnNewGameClicked()
     {
-        Console.WriteLine("New Game Clicked");
+        _sceneManager.BeginLoadActiveScene(new TestoScene(_logger, Assets));
     }
     
     public void OnLoadGameClicked()

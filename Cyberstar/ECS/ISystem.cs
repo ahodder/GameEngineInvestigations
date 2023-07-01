@@ -3,8 +3,10 @@ using Cyberstar.Core;
 namespace Cyberstar.ECS;
 
 public interface ISystem
-{
-    public bool Enabled { get; set; }
+{ 
+    bool Enabled { get; set; }
+    
+    EntityManager EntityManager { get; set; }
     
     void PreUpdate();
     void Update(FrameTiming time);

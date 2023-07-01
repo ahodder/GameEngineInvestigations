@@ -5,9 +5,6 @@ using Cyberstar.Scenes;
 using Raylib_cs;
 
 Raylib.InitWindow(1200, 800, "Hello, world");
-// Raylib.SetWindowMonitor(1);
-
-// var texture = Raylib.LoadTexture("assets/textures/atlas/dev_ships.png");
 
 var logger = Log.Instance = new ConsoleLogger();
 var assets = new AssetManager(logger, "assets");

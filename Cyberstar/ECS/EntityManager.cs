@@ -34,6 +34,11 @@ public class EntityManager
     private Dictionary<Type, IComponentAllocator> _componentAllocators;
 
     /// <summary>
+    /// The collection of systems that will run for the manager.
+    /// </summary>
+    private List<ISystem> _systems;
+
+    /// <summary>
     /// This is the maximum number of entities that existed at one time.
     /// </summary>
     private int _entityCount;
@@ -51,6 +56,46 @@ public class EntityManager
         _entityToNodeIndex = new Dictionary<Entity, int>();
         _destroyedEntities = new Queue<int>();
         _componentAllocators = new Dictionary<Type, IComponentAllocator>();
+        _systems = new List<ISystem>();
+    }
+
+    /// <summary>
+    /// Adds the given system to the entity manager.
+    /// </summary>
+    /// <param name="system"></param>
+    public void AddSystem(ISystem system)
+    {
+        _systems.Add(system);
+        system.EntityManager = this;
+    }
+
+    /// <summary>
+    /// Removes the system from the entity manager.
+    /// </summary>
+    /// <param name="system"></param>
+    public void RemoveSystem(ISystem system)
+    {
+        _systems.Remove(system);
+        system.EntityManager = null;
+    }
+
+    /// <summary>
+    /// Executes all the systems in order.
+    /// </summary>
+    /// <param name="frameTiming"></param>
+    public void RunSystems(FrameTiming frameTiming)
+    {
+        for (var i = 0; i < _systems.Count; i++)
+            if (_systems[i].Enabled)
+                _systems[i].PreUpdate();
+        
+        for (var i = 0; i < _systems.Count; i++)
+            if (_systems[i].Enabled)
+                _systems[i].Update(frameTiming);
+        
+        for (var i = 0; i < _systems.Count; i++)
+            if (_systems[i].Enabled)
+                _systems[i].PostUpdate();
     }
 
     /// <summary>
@@ -311,30 +356,44 @@ public class EntityManager
     {
         _componentAllocators[type] = allocator;
     }
+
+    // public uint ComputeEntityQueryWindow(ReadOnlySpan<Type> componentTypes)
+    // {
+    //     var cnt = 0u;
+    //
+    //     for (var i = 0; i < _entityCount; i++)
+    //     {
+    //         var hasAllAllocators = true;
+    //         for (var j = 0; j < componentTypes.Length; j++)
+    //         {
+    //             var allocator = _componentAllocators[componentTypes[j]];
+    //             var entityWrapper = _allEntities.Span[i];
+    //             if (!entityWrapper.Alive || !allocator.HasComponentForEntity(entityWrapper.Entity))
+    //             {
+    //                 hasAllAllocators = false;
+    //                 break;
+    //             }                
+    //         }
+    //     
+    //         if (hasAllAllocators)
+    //         {
+    //             cnt++;
+    //         }
+    //     }
+    //
+    //     return cnt;
+    // }
     
-    public uint FindEntitiesWith(Type[] allocatorTypes, Entity[] entityBuffer, uint offset = 0, uint count = int.MaxValue)
+    public uint FindEntitiesWith(ReadOnlySpan<Type> allocatorTypes, Span<Entity> entityBuffer)
     {
-        /* todo ahodder@praethos.com 6/29/22: remove this allocation */
-        var allocators = new List<IComponentAllocator>();
-        
-        // Ensure all allocators are present
-        for (var i = 0; i < allocatorTypes.Length; i++)
-        {
-            if (_componentAllocators.TryGetValue(allocatorTypes[i], out var a))
-                allocators.Add(a);
-            else
-                return 0;
-        }
-        
-        var max = Math.Min(entityBuffer.Length, offset + count);
         var cnt = 0u;
 
-        for (var i = offset; i < max; i++)
+        for (var i = 0; i < _entityCount && cnt < entityBuffer.Length; i++)
         {
             var hasAllAllocators = true;
-            for (var j = 0; j < allocators.Count; j++)
+            for (var j = 0; j < allocatorTypes.Length; j++)
             {
-                var allocator = allocators[j];
+                var allocator = _componentAllocators[allocatorTypes[j]];
                 var entityWrapper = _allEntities.Span[(int)i];
                 if (!entityWrapper.Alive || !allocator.HasComponentForEntity(entityWrapper.Entity))
                 {
@@ -345,15 +404,45 @@ public class EntityManager
         
             if (hasAllAllocators)
             {
-                var k = offset + cnt;
-                var entityWrapper = _allEntities.Span[(int)k];
-                entityBuffer[cnt] = entityWrapper.Entity;
+                var entityWrapper = _allEntities.Span[i];
+                entityBuffer[(int)cnt] = entityWrapper.Entity;
                 cnt++;
             }
         }
 
         return cnt;
     }
+    
+    // public int FindEntitiesWith(ReadOnlySpan<Type> allocatorTypes, Span<Entity> entityBuffer, uint offset = 0, uint count = int.MaxValue)
+    // {
+    //     var max = Math.Min(entityBuffer.Length, offset + count);
+    //     var cnt = 0;
+    //
+    //     for (var i = offset; i < max; i++)
+    //     {
+    //         var hasAllAllocators = true;
+    //         for (var j = 0; j < allocatorTypes.Length; j++)
+    //         {
+    //             var allocator = _componentAllocators[allocatorTypes[j]];
+    //             var entityWrapper = _allEntities.Span[(int)i];
+    //             if (!entityWrapper.Alive || !allocator.HasComponentForEntity(entityWrapper.Entity))
+    //             {
+    //                 hasAllAllocators = false;
+    //                 break;
+    //             }                
+    //         }
+    //     
+    //         if (hasAllAllocators)
+    //         {
+    //             var k = offset + cnt;
+    //             var entityWrapper = _allEntities.Span[(int)k];
+    //             entityBuffer[cnt] = entityWrapper.Entity;
+    //             cnt++;
+    //         }
+    //     }
+    //
+    //     return cnt;
+    // }
 
     /// <summary>
     /// Represents whether or not an entity is alive.
