@@ -64,6 +64,43 @@ public static class EntityManagerExtensions
         entityManager.SetComponentFor(entity, t5);
     }
     
+    public static void SetComponentsFor<T1, T2, T3, T4, T5, T6>(this EntityManager entityManager, Entity entity,
+        T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6)
+        where T1 : struct 
+        where T2 : struct
+        where T3 : struct
+        where T4 : struct
+        where T5 : struct
+        where T6 : struct
+    {
+        entityManager.SetComponentFor(entity, t1);
+        entityManager.SetComponentFor(entity, t2);
+        entityManager.SetComponentFor(entity, t3);
+        entityManager.SetComponentFor(entity, t4);
+        entityManager.SetComponentFor(entity, t5);
+        entityManager.SetComponentFor(entity, t6);
+    }
+    
+    
+    public static void SetComponentsFor<T1, T2, T3, T4, T5, T6, T7>(this EntityManager entityManager, Entity entity,
+        T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7)
+        where T1 : struct 
+        where T2 : struct
+        where T3 : struct
+        where T4 : struct
+        where T5 : struct
+        where T6 : struct
+        where T7 : struct
+    {
+        entityManager.SetComponentFor(entity, t1);
+        entityManager.SetComponentFor(entity, t2);
+        entityManager.SetComponentFor(entity, t3);
+        entityManager.SetComponentFor(entity, t4);
+        entityManager.SetComponentFor(entity, t5);
+        entityManager.SetComponentFor(entity, t6);
+        entityManager.SetComponentFor(entity, t7);
+    }
+    
     public static uint FindEntitiesWith<T>(this EntityManager entityManager, Span<Entity> entityBuffer, uint offset = 0)
         where T : struct
     {

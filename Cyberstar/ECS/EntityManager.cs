@@ -306,6 +306,12 @@ public class EntityManager
         _entityRelations = newMem;
     }
 
+    public ref T GetComponentFor<T>(Entity entity) where T : struct
+    {
+        var allocator = this.GetAllocatorFor<T>();
+        return ref allocator.Data.Get(entity);
+    }
+
     public bool TryGetComponentFor<T>(Entity entity, out T outComponent) where T : struct
     {
         var allocator = this.GetAllocatorFor<T>();

@@ -81,6 +81,13 @@ public class ComponentAllocator<T> : IComponentAllocator<T> where T : struct
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref T Get(Entity entity)
+    {
+        var index = _entityToIndex[entity];
+        return ref _components.Span[index];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryGet(Entity entity, out T outValue) {
         if (_entityToIndex.TryGetValue(entity, out var index))
         {

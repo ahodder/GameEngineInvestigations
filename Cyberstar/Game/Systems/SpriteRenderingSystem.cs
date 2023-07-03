@@ -30,13 +30,19 @@ public class SpriteRenderingSystem : SystemBase
 
             for (var i = 0; i < found; i++)
             {
-                EntityManager.TryGetComponentFor(entities[i], out SpriteComponent sprite);
-                EntityManager.TryGetComponentFor(entities[i], out TransformComponent transform);
+                ref var sprite = ref EntityManager.GetComponentFor<SpriteComponent>(entities[i]);
+                ref var transform = ref EntityManager.GetComponentFor<TransformComponent>(entities[i]);
 
                 if (!_assetManager.GetSpriteFromAtlas(sprite.SpriteAtlas, sprite.SpriteAnimationPath, sprite.SpriteCurrentFrame, out var texture, out var frame))
                     continue;
 
-                Raylib.DrawTextureRec(texture, frame, new Vector2(transform.X, transform.Y), Color.WHITE);
+                var pos = transform.Position;
+                Raylib.DrawTexturePro(texture,
+                    frame,
+                    new Rectangle(pos.X, pos.Y, frame.width, frame.height),
+                    new Vector2(frame.width / 2f, frame.height / 2f),
+                    transform.Rotation,
+                    Color.WHITE);
             }
 
             offset += found;
