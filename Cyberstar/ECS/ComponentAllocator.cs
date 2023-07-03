@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using Cyberstar.Core;
+using Cyberstar.Extensions.IO;
 
 namespace Cyberstar.ECS;
 
@@ -17,17 +18,17 @@ public interface IComponentAllocator
     /// </summary>
     /// <param name="writer"></param>
     /// <returns></returns>
-    Result<bool> SerializeTo(BinaryWriter writer);
+    Result<bool> Serialize(BinaryWriter writer);
     
     /// <summary>
     /// Deserializes content from the stream into the allocator.
     /// </summary>
     /// <param name="reader"></param>
     /// <returns></returns>
-    Result<bool> DeserializeFrom(BinaryReader reader);
+    Result<bool> Deserialize(BinaryReader reader);
 }
 
-public interface IComponentAllocator<T> : IComponentAllocator where T : struct
+public interface IComponentAllocator<T> : IComponentAllocator where T : struct, IComponent
 {
     /// <summary>
     /// Attempts to get the given component type for the provided entity. 
@@ -51,7 +52,7 @@ public interface IComponentAllocator<T> : IComponentAllocator where T : struct
     void Remove(Entity entity);
 }
 
-public class ComponentAllocator<T> : IComponentAllocator<T> where T : struct
+public class ComponentAllocator<T> : IComponentAllocator<T> where T : struct, IComponent
 {
     private const int InitialCapacity = 16;
     
@@ -145,22 +146,25 @@ public class ComponentAllocator<T> : IComponentAllocator<T> where T : struct
         _components = tmp;
     }
 
-    public Result<bool> SerializeTo(BinaryWriter writer)
+    public Result<bool> Serialize(BinaryWriter writer)
     {
         try
         {
-            ReadOnlySpan<byte> bytes = Unsafe.As<Memory<T>, Memory<byte>>(ref _components).Span;
-            writer.Write(bytes.Length);
-            writer.Write(bytes);
-            writer.Write(_head);
-            foreach (var pair in _entityToIndex)
+            // Write the entity to index mapping
+            writer.Write(_entityToIndex.Count);
+            foreach (var keyPair in _entityToIndex)
             {
-                // Write the entity
-                writer.Write(pair.Key.Id);
-                writer.Write(pair.Key.Generation);
-                // Write the index
-                writer.Write(pair.Value);
+                writer.Write(keyPair.Key);
+                writer.Write(keyPair.Value);
             }
+            
+            // Serialize the component blob
+            writer.Write(_head);
+            for (var i = 0; i < _head; i++)
+            {
+                _components.Span[i].Serialize(writer);
+            }
+            
             return Result<bool>.DefaultSuccess;
         }
         catch (Exception e)
@@ -169,23 +173,28 @@ public class ComponentAllocator<T> : IComponentAllocator<T> where T : struct
         }
     }
 
-    public Result<bool> DeserializeFrom(BinaryReader reader)
+    public Result<bool> Deserialize(BinaryReader reader)
     {
         try
         {
-            var byteLength = reader.ReadInt32();
-            var bytes = reader.ReadBytes(byteLength);
-            var rawBytes = new Memory<byte>(bytes);
-            _components = Unsafe.As<Memory<byte>, Memory<T>>(ref rawBytes);
+            _entityToIndex.Clear();
+            _indexToEntity.Clear();
+                        
+            var count = reader.ReadInt32();
+            for (var i = 0; i < count; i++)
+            {
+                var e = reader.ReadEntity();
+                var index = reader.ReadInt32();
+
+                _entityToIndex[e] = index;
+                _indexToEntity[index] = e;
+            }
+
             _head = reader.ReadInt32();
+            _components = new Memory<T>(new T[_head]);
             for (var i = 0; i < _head; i++)
             {
-                var id = reader.ReadInt32();
-                var generation = reader.ReadInt32();
-                var index = reader.ReadInt32();
-                var entity = new Entity(id, generation);
-                _indexToEntity[index] = entity;
-                _entityToIndex[entity] = index;
+                _components.Span[i].Deserialize(reader);
             }
 
             return Result<bool>.DefaultSuccess;

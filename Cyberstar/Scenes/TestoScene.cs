@@ -5,6 +5,7 @@ using Cyberstar.ECS;
 using Cyberstar.Game.Components;
 using Cyberstar.Game.Systems;
 using Cyberstar.Logging;
+using Raylib_cs;
 
 namespace Cyberstar.Scenes;
 
@@ -19,6 +20,24 @@ public class TestoScene : Scene
     
     public override void PerformTick(FrameTiming frameTiming)
     {
+        if (Raylib.IsKeyPressed(KeyboardKey.KEY_M))
+        {
+            using (var file = File.OpenWrite("TestSerialization.blob"))
+            {
+                EntityManager.Serialize(file);
+                Log.Information("Saved entity manager to disk");
+            }
+        }
+
+        if (Raylib.IsKeyPressed(KeyboardKey.KEY_N))
+        {
+            using (var file = File.OpenRead("TestSerialization.blob"))
+            {
+                EntityManager.Deserialize(file);
+                Log.Information("Loaded entity manager from disk");
+            }
+        }
+        
         // Read player input
 
         EntityManager.RunSystems(frameTiming);

@@ -1,9 +1,11 @@
 using System.Numerics;
+using Cyberstar.ECS;
+using Cyberstar.Extensions.IO;
 using Cyberstar.Math;
 
 namespace Cyberstar.Game.Components;
 
-public struct TransformComponent
+public struct TransformComponent : IComponent
 {
     public Vector2 Position { get; private set; }
     public Vector2 Scale { get; private set; }
@@ -26,47 +28,18 @@ public struct TransformComponent
         RotationRadians += degrees * MathF.PI / 180;
     }
 
-    public static TransformComponent FromTranslation(Vector2 translation)
+    public void Serialize(BinaryWriter writer)
     {
-        var ret = new TransformComponent();
-        ret.Translate(translation);
-        return ret;
-    }
-}
-
-
-/*
-
-using System.Numerics;
-
-namespace Cyberstar.Game.Components;
-
-public struct TransformComponent
-{
-
-    public Vector2 Position;
-    public Vector2 Scale;
-    public float RotationRadians; // This is in radians
-
-    public float RotationDegrees
-    {
-        get => RotationRadians * 180 / MathF.PI;
-        set => RotationRadians = value * 180 / MathF.PI;
+        writer.Write(Position);
+        writer.Write(Scale);
+        writer.Write(RotationRadians);
     }
 
-    // Calculated on-the-fly
-    public Vector2 Forward => new Vector2(MathF.Cos(RotationRadians), MathF.Sin(RotationRadians));
-
-    // public Matrix4x4 Transform;
-
-    public void Translate(Vector2 movement)
+    public void Deserialize(BinaryReader reader)
     {
-        Position += movement;
-    }
-
-    public void TranslateForward(Vector2 movement)
-    {
-        Position += new Vector2(movement.X * MathF.Cos(RotationRadians), movement.Y * MathF.Sin(RotationRadians));
+        Position = reader.ReadVector2();
+        Scale = reader.ReadVector2();
+        RotationRadians = reader.ReadSingle();
     }
 
     public static TransformComponent FromTranslation(Vector2 translation)
@@ -76,5 +49,3 @@ public struct TransformComponent
         return ret;
     }
 }
-
-*/

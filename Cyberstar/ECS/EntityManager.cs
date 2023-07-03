@@ -1,4 +1,6 @@
+using System.Text;
 using Cyberstar.Core;
+using Cyberstar.Extensions.IO;
 using Cyberstar.Logging;
 
 namespace Cyberstar.ECS;
@@ -18,15 +20,40 @@ public class EntityManager
     /// </summary>
     public int DestroyedEntities => _destroyedEntities.Count;
     
-    private ILogger _logger;
+    /// <summary>
+    /// The logger that the entity manager will use.
+    /// </summary>
+    private readonly ILogger _logger;
+    
+    /// <summary>
+    /// The memory pool of all of the entities.
+    /// </summary>
     private Memory<EntityWrapper> _allEntities;
+    
+    /// <summary>
+    /// The queue of all of the entities that have been destroyed and can be reused.
+    /// </summary>
+    private Queue<int> _destroyedEntities;
+    
+    /// <summary>
+    /// This is the maximum number of entities that existed at one time.
+    /// </summary>
+    private int _entityCount;
+
+    /// <summary>
+    /// The pointer to the last item in the relations memory.
+    /// </summary>
+    private int _relationTail;
+
+    /// <summary>
+    /// The memory pool of all of the entity relationships.
+    /// </summary>
     private Memory<Relation> _entityRelations;
     
     /// <summary>
     /// The mapping from an entity to it's first child.
     /// </summary>
     private Dictionary<Entity, int> _entityToNodeIndex;
-    private Queue<int> _destroyedEntities;
     
     /// <summary>
     /// The dictionary that maps types to component allocators.
@@ -37,16 +64,6 @@ public class EntityManager
     /// The collection of systems that will run for the manager.
     /// </summary>
     private List<ISystem> _systems;
-
-    /// <summary>
-    /// This is the maximum number of entities that existed at one time.
-    /// </summary>
-    private int _entityCount;
-
-    /// <summary>
-    /// The pointer to the last item in the relations memory.
-    /// </summary>
-    private int _relationTail;
 
     public EntityManager(ILogger logger, int initialCapacity)
     {
@@ -306,13 +323,13 @@ public class EntityManager
         _entityRelations = newMem;
     }
 
-    public ref T GetComponentFor<T>(Entity entity) where T : struct
+    public ref T GetComponentFor<T>(Entity entity) where T : struct, IComponent
     {
         var allocator = this.GetAllocatorFor<T>();
         return ref allocator.Data.Get(entity);
     }
 
-    public bool TryGetComponentFor<T>(Entity entity, out T outComponent) where T : struct
+    public bool TryGetComponentFor<T>(Entity entity, out T outComponent) where T : struct, IComponent
     {
         var allocator = this.GetAllocatorFor<T>();
         if (allocator.Success)
@@ -323,7 +340,7 @@ public class EntityManager
         return false;
     }
     
-    public void SetComponentFor<T>(Entity entity, T component) where T : struct
+    public void SetComponentFor<T>(Entity entity, T component) where T : struct, IComponent
     {
         var allocator = this.GetAllocatorFor<T>();
         if (allocator.Success)
@@ -335,14 +352,14 @@ public class EntityManager
         }
     }
     
-    public void RemoveComponentFor<T>(Entity entity) where T : struct
+    public void RemoveComponentFor<T>(Entity entity) where T : struct, IComponent
     {
         var allocator = this.GetAllocatorFor<T>();
         if (allocator.Success)
             allocator.Data.Remove(entity);
     }
 
-    public bool HasComponentFor<T>(Entity entity) where T : struct
+    public bool HasComponentFor<T>(Entity entity) where T : struct, IComponent
     {
         var allocator = this.GetAllocatorFor<T>();
         if (allocator.Success)
@@ -363,33 +380,6 @@ public class EntityManager
         _componentAllocators[type] = allocator;
     }
 
-    // public uint ComputeEntityQueryWindow(ReadOnlySpan<Type> componentTypes)
-    // {
-    //     var cnt = 0u;
-    //
-    //     for (var i = 0; i < _entityCount; i++)
-    //     {
-    //         var hasAllAllocators = true;
-    //         for (var j = 0; j < componentTypes.Length; j++)
-    //         {
-    //             var allocator = _componentAllocators[componentTypes[j]];
-    //             var entityWrapper = _allEntities.Span[i];
-    //             if (!entityWrapper.Alive || !allocator.HasComponentForEntity(entityWrapper.Entity))
-    //             {
-    //                 hasAllAllocators = false;
-    //                 break;
-    //             }                
-    //         }
-    //     
-    //         if (hasAllAllocators)
-    //         {
-    //             cnt++;
-    //         }
-    //     }
-    //
-    //     return cnt;
-    // }
-    
     public uint FindEntitiesWith(ReadOnlySpan<Type> allocatorTypes, Span<Entity> entityBuffer)
     {
         var cnt = 0u;
@@ -418,37 +408,122 @@ public class EntityManager
 
         return cnt;
     }
-    
-    // public int FindEntitiesWith(ReadOnlySpan<Type> allocatorTypes, Span<Entity> entityBuffer, uint offset = 0, uint count = int.MaxValue)
-    // {
-    //     var max = Math.Min(entityBuffer.Length, offset + count);
-    //     var cnt = 0;
-    //
-    //     for (var i = offset; i < max; i++)
-    //     {
-    //         var hasAllAllocators = true;
-    //         for (var j = 0; j < allocatorTypes.Length; j++)
-    //         {
-    //             var allocator = _componentAllocators[allocatorTypes[j]];
-    //             var entityWrapper = _allEntities.Span[(int)i];
-    //             if (!entityWrapper.Alive || !allocator.HasComponentForEntity(entityWrapper.Entity))
-    //             {
-    //                 hasAllAllocators = false;
-    //                 break;
-    //             }                
-    //         }
-    //     
-    //         if (hasAllAllocators)
-    //         {
-    //             var k = offset + cnt;
-    //             var entityWrapper = _allEntities.Span[(int)k];
-    //             entityBuffer[cnt] = entityWrapper.Entity;
-    //             cnt++;
-    //         }
-    //     }
-    //
-    //     return cnt;
-    // }
+
+    public void Serialize(Stream stream)
+    {
+        using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+        {
+            // Serialize the entities
+            writer.Write(_entityCount);
+            writer.Write(_relationTail);
+            
+            writer.Write(_allEntities.Length);
+            for (var i = 0; i < _entityCount; i++)
+            {
+                var wrapper = _allEntities.Span[i];
+                writer.Write(wrapper.Entity);
+                writer.Write(wrapper.Alive);
+            }
+            
+            // Serialize the destroyed entities
+            writer.Write(_destroyedEntities.Count);
+            foreach (var thing in _destroyedEntities)
+            {
+                writer.Write(thing);
+            }
+
+            // Write the relations
+            writer.Write(_entityRelations.Length);
+            for (var i = 0; i < _entityRelations.Length; i++)
+            {
+                var relation = _entityRelations.Span[i];
+                writer.Write(relation.Child);
+                writer.Write(relation.Next);
+                writer.Write(relation.Previous);
+            }
+            
+            // Write the Relation mapping
+            writer.Write(_entityToNodeIndex.Count);
+            foreach (var keyPair in _entityToNodeIndex)
+            {
+                var index = keyPair.Value;
+                writer.Write(keyPair.Key);
+                writer.Write(index);
+            }
+            
+            // Write the allocator data
+            writer.Write(_componentAllocators.Count);
+            foreach (var keyValue in _componentAllocators)
+            {
+                // Write the component key name
+                writer.Write(keyValue.Key.FullName);
+                // Write the allocator class name
+                var allocatorName = keyValue.Value.GetType().FullName;
+                writer.Write(allocatorName);
+                keyValue.Value.Serialize(writer);
+            }
+        }
+    }
+
+    public void Deserialize(Stream stream)
+    {
+        using (var reader = new BinaryReader(stream))
+        {
+            // Deserialize the entities
+            _entityCount = reader.ReadInt32();
+            _relationTail = reader.ReadInt32();
+
+            var allEntitiesLength = reader.ReadInt32();
+            _allEntities = new Memory<EntityWrapper>(new EntityWrapper[allEntitiesLength]);
+            for (var i = 0; i < _entityCount; i++)
+            {
+                var wrapper = new EntityWrapper(reader.ReadEntity(), reader.ReadBoolean());
+                _allEntities.Span[i] = wrapper;
+            }
+            
+            // Deserialize the destroyed entities
+            var destroyedEntitiesLength = reader.ReadInt32();
+            _destroyedEntities = new Queue<int>(destroyedEntitiesLength);
+            for (var i = 0; i < destroyedEntitiesLength; i++)
+            {
+                _destroyedEntities.Enqueue(reader.ReadInt32());
+            }
+            
+            // Read the relations
+            var relationsLength = reader.ReadInt32();
+            _entityRelations = new Memory<Relation>(new Relation[relationsLength]);
+            for (var i = 0; i < relationsLength; i++)
+            {
+                var relation = new Relation(reader.ReadEntity(), reader.ReadInt32(), reader.ReadInt32());
+                _entityRelations.Span[i] = relation;
+            }
+            
+            // Read the relation mapping
+            var entityToNodeCount = reader.ReadInt32();
+            _entityToNodeIndex = new Dictionary<Entity, int>();
+            for (var i = 0; i < entityToNodeCount; i++)
+            {
+                var entity = reader.ReadEntity();
+                _entityToNodeIndex[entity] = reader.ReadInt32();
+            }
+            
+            // Read the allocator data
+            var allocators = reader.ReadInt32();
+            _componentAllocators = new Dictionary<Type, IComponentAllocator>();
+            for (var i = 0; i < allocators; i++)
+            {
+                var componentName = reader.ReadString();
+                var componentType = Type.GetType(componentName);
+                
+                var allocatorName = reader.ReadString();
+                var type = Type.GetType(allocatorName);
+                var allocator = (IComponentAllocator)Activator.CreateInstance(type);
+                allocator.Deserialize(reader);
+
+                _componentAllocators[componentType] = allocator; 
+            }
+        }
+    }
 
     /// <summary>
     /// Represents whether or not an entity is alive.
