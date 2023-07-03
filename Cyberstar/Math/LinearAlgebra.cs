@@ -67,6 +67,21 @@ public static class LinearAlgebra
     }
 
     /// <summary>
+    /// Rotates a 2d vector by some radians.
+    /// </summary>
+    /// <param name="self"></param>
+    /// <param name="radians"></param>
+    /// <returns></returns>
+    public static Vector2 Rotate(this Vector2 self, float radians)
+    {
+        float cos = MathF.Cos(radians);
+        float sin = MathF.Sin(radians);
+        float newX = self.X * cos - self.Y * sin;
+        float newY = self.X * sin + self.Y * cos;
+        return new Vector2(newX, newY);
+    }
+
+    /// <summary>
     /// Normalizes the vector to a unit length.
     /// </summary>
     /// <param name="self"></param>

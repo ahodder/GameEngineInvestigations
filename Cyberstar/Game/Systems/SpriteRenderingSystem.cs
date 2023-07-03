@@ -41,7 +41,7 @@ public class SpriteRenderingSystem : SystemBase
                     frame,
                     new Rectangle(pos.X, pos.Y, frame.width, frame.height),
                     new Vector2(frame.width / 2f, frame.height / 2f),
-                    transform.Rotation,
+                    transform.RotationRadians * 180 / MathF.PI,
                     Color.WHITE);
             }
 

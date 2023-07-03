@@ -38,8 +38,8 @@ public class ShipMovementSystem : SystemBase
                 if (actualRotationalVelocity > ship.MaximumRotationalVelocity)
                     actualRotationalVelocity = ship.MaximumRotationalVelocity;
                 
-                transform.Translate(actualVelocity);
                 transform.Rotate(actualRotationalVelocity);
+                transform.TranslateForward(actualVelocity);
 
                 var dragCoefficient = 1 - velocity.Drag;
 
