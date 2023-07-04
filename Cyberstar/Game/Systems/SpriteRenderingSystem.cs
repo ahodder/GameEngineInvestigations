@@ -33,7 +33,7 @@ public class SpriteRenderingSystem : SystemBase
                 ref var sprite = ref EntityManager.GetComponentFor<SpriteComponent>(entities[i]);
                 ref var transform = ref EntityManager.GetComponentFor<TransformComponent>(entities[i]);
 
-                if (!_assetManager.GetSpriteFromAtlas(sprite.SpriteAtlas, sprite.SpriteAnimationPath, sprite.SpriteCurrentFrame, out var texture, out var frame))
+                if (!_assetManager.TryGetSpriteFromAtlas(sprite.SpriteAtlas, sprite.SpriteAnimationPath, sprite.SpriteCurrentFrame, out var texture, out var frame))
                     continue;
 
                 var pos = transform.Position;

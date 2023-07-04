@@ -82,7 +82,7 @@ public class AssetManager
         return texture.height != 0 && texture.width != 0;
     }
 
-    public bool GetSpriteFromAtlas(string spriteAtlas, string spriteAnimation, int frameIndex, out Texture2D texture, out Rectangle frame)
+    public bool TryGetSpriteFromAtlas(string spriteAtlas, string spriteAnimation, int frameIndex, out Texture2D texture, out Rectangle frame)
     {
         if (!_loadedAtlases.TryGetValue(spriteAtlas, out var atlas) ||
             !atlas.Sprites.TryGetValue(spriteAnimation, out var sprite) ||
@@ -97,5 +97,14 @@ public class AssetManager
         texture = atlas.BackingTexture;
         frame = new Rectangle(spriteFrame.X, spriteFrame.Y, spriteFrame.Width, spriteFrame.Height);
         return true;
+    }
+
+    public bool TryGetSpriteAtlas(string spriteAtlasName, out SpriteAtlas spriteAtlas)
+    {
+        if (_loadedAtlases.TryGetValue(spriteAtlasName, out spriteAtlas))
+            return true;
+
+        spriteAtlas = default;
+        return false;
     }
 }

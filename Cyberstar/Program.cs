@@ -12,7 +12,8 @@ var sceneManager = new SceneManager(logger, assets);
 
 var loadTexture = assets.TryLoadSpriteAtlas("dev_ships", out var atlas);
 
-sceneManager.BeginLoadActiveScene(new MainMenuScene(sceneManager, logger, assets));
+// sceneManager.BeginLoadActiveScene(new MainMenuScene(sceneManager, logger, assets));
+sceneManager.BeginLoadActiveScene(new ShipBuilderScene(logger, assets));
 
 FrameTiming ft = new FrameTiming();
 while (!Raylib.WindowShouldClose() && !sceneManager.ApplicationCloseRequested)

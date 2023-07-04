@@ -52,7 +52,7 @@ public class MainMenuScene : Scene
         Exit.OnClick += OnExitClicked;
 
         _sceneManager = sceneManager;
-        _uiRenderer = new UiRenderer(assets.FontAtlas);
+        _uiRenderer = new UiRenderer(assets);
     }
 
     public override void PerformTick(FrameTiming frameTiming)

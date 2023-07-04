@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Numerics;
+using Rectangle = Raylib_cs.Rectangle;
 
 namespace Cyberstar.UI.ViewFragments;
 
@@ -52,7 +53,7 @@ public struct DimensionsFragment
     public Thickness Padding;
     public Point Position;
     public Point ContentSize;
-
+    
     public int ContentStartX => Margin.Left + Padding.Left + Position.X;
     public int ContentStartY => Margin.Top + Padding.Top + Position.Y;
 
