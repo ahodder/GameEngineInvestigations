@@ -18,7 +18,7 @@ public class ShipBuilderScene : Scene
         _uiRenderer = new UiRenderer(assets);
         
         _atlasView = new SpriteAtlasGridView();
-        _atlasView.Dimensions = new DimensionsFragment(0, 0, 400, 600);
+        _atlasView.Dimensions = new ViewDimensions(0, 0, 400, 600);
         _atlasView.ColumnSpacing = 2;
         _atlasView.RowSpacing = 2;
         _atlasView.Columns = 4;
@@ -26,6 +26,8 @@ public class ShipBuilderScene : Scene
 
         assets.TryLoadSpriteAtlas("dev_ships", out var spriteAtlas);
         _atlasView.SpriteAtlas = spriteAtlas;
+        _atlasView.OnCellClick = (x, y) => _logger.Debug($"Grid Click: {x}, {y}");
+        _atlasView.OnHover = (x, y) => true;
     }
 
     public override void PerformTick(FrameTiming frameTiming)

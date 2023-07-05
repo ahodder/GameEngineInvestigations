@@ -3,13 +3,15 @@ using Cyberstar.UI.ViewFragments;
 
 namespace Cyberstar.UI;
 
-public struct Label : IView
+public struct LabeledExpander<T> : IView where T : IView
 {
     public ViewDimensions Dimensions { get; }
-    public TextFragment Text;
+
+    public Label Label;
+    public T ExpanderView;
+    public bool IsExpanded;
 
     public void Render(AssetManager assetManager)
     {
-        Text.Render(assetManager, Dimensions);
     }
 }

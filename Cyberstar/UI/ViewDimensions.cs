@@ -2,7 +2,7 @@ using System.Drawing;
 using System.Numerics;
 using Rectangle = Raylib_cs.Rectangle;
 
-namespace Cyberstar.UI.ViewFragments;
+namespace Cyberstar.UI;
 
 public struct Thickness
 {
@@ -47,7 +47,7 @@ public struct Thickness
     public int Height => Top + Bottom;
 }
 
-public struct DimensionsFragment
+public struct ViewDimensions
 {
     public Thickness Margin;
     public Thickness Padding;
@@ -73,7 +73,7 @@ public struct DimensionsFragment
 
     public int Bottom => ActualY + ActualHeight;
 
-    public DimensionsFragment(int x, int y, int width, int height)
+    public ViewDimensions(int x, int y, int width, int height)
     {
         Margin = Thickness.Zero;
         Padding = Thickness.Zero;
