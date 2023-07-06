@@ -1,37 +1,40 @@
+using System.Drawing;
 using System.Numerics;
 using Cyberstar.AssetManagement;
 using Cyberstar.Extensions.Raylib;
 using Cyberstar.Sprites;
-using Cyberstar.UI.ViewFragments;
 using Raylib_cs;
+using Color = Raylib_cs.Color;
+using Rectangle = Raylib_cs.Rectangle;
 
 namespace Cyberstar.UI;
 
-public struct SpriteAtlasGridView : IView
+public class SpriteAtlasGridView : ViewBase
 {
-    public ViewDimensions Dimensions { get; }
-    public BackgroundFragment Background;
-    public SpriteAtlas SpriteAtlas;
-    public int Columns;
-    public int Rows;
-    public int ColumnSpacing;
-    public int RowSpacing;
-    public Action<int, int>? OnCellClick;
+    public SpriteAtlas SpriteAtlas { get; set; }
+    public int Columns { get; set; }
+    public int Rows { get; set; }
+    public int ColumnSpacing { get; set; }
+    public int RowSpacing { get; set; }
+    public Action<int, int>? OnCellClick { get; set; }
     public Func<int, int, bool>? OnHover = (x, y) => false;
 
-    public int CellWidth => (Dimensions.ContentWidth - ColumnSpacing * (Columns + 1)) / Columns;
-    public int CellHeight => (Dimensions.ContentHeight - RowSpacing * (Rows + 1)) / Rows;
+    public int CellWidth => (ContentBounds.Width - ColumnSpacing * (Columns + 1)) / Columns;
+    public int CellHeight => (ContentBounds.Height - RowSpacing * (Rows + 1)) / Rows;
 
-    public SpriteAtlasGridView()
+    public SpriteAtlasGridView(AssetManager assetManager, SpriteAtlas spriteAtlas) : base(assetManager)
     {
+        SpriteAtlas = spriteAtlas;
     }
 
-    public void Render(AssetManager assetManager)
+    protected override Point DoMeasure(int x, int y, int width, int height)
     {
-        Background.Render(assetManager, Dimensions);
+        throw new NotImplementedException();
+    }
 
+    protected override void DoRenderContent()
+    {
         var spriteAtlasKeys = SpriteAtlas.Sprites.Keys.ToArray();
-        Raylib.DrawRectangle(Dimensions.ActualX, Dimensions.ActualY, Dimensions.ActualWidth, Dimensions.ActualHeight, Color.GOLD);
         
         var mousePosition = Raylib.GetMousePosition();
         

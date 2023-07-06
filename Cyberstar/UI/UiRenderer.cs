@@ -1,21 +1,23 @@
 using Cyberstar.AssetManagement;
+using Raylib_cs;
 
 namespace Cyberstar.UI;
 
 public class UiRenderer
 {
-    public IView? RootView { get; set; }
+    public IView RootView { get; set; }
     
-    private readonly AssetManager _assetManager;
-    
-    public UiRenderer(AssetManager assetManager, IView? rootView)
+    public UiRenderer(IView rootView, int x, int y, int width, int height)
     {
-        _assetManager = assetManager;
         RootView = rootView;
+        RootView.Measure(x, y, width, height);
     }
 
     public void Render()
     {
-        RootView?.Render(_assetManager);
+        RootView.Render();
+        var mousePosition = Raylib.GetMousePosition();
+        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
+            RootView.WillHandleMouseClick((int)mousePosition.X, (int)mousePosition.Y);
     }
 }
