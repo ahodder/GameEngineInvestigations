@@ -13,7 +13,7 @@ public class MainMenuScene : Scene
 
     public MainMenuScene(SceneManager sceneManager, ILogger logger, AssetManager assets) : base(logger, assets)
     {
-        var layout = new VerticalLinearLayoutView(assets)
+        var layout = new VerticalLayoutView(assets)
             .AddView(CreateButton("Continue", OnContinueClicked))
             .AddView(CreateButton("New Game", OnNewGameClicked))
             .AddView(CreateButton("Load Game", OnLoadGameClicked))

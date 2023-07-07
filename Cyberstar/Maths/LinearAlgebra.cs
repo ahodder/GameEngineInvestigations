@@ -1,7 +1,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace Cyberstar.Math;
+namespace Cyberstar.Maths;
 
 /// <summary>
 /// Provides most of the linear algebra functions that are needed for 2 and 3 dimensional maths.

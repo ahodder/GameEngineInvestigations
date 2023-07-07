@@ -3,28 +3,26 @@ using Cyberstar.AssetManagement;
 
 namespace Cyberstar.UI;
 
-public class VerticalLinearLayoutView : ViewBase
+public class VerticalLayoutView : ViewBase
 {
     public List<IView> Children { get; } = new List<IView>();
 
     public int ViewSpacing { get; set; }
 
-    public VerticalLinearLayoutView(AssetManager assetManager) : base(assetManager)
+    public VerticalLayoutView(AssetManager assetManager) : base(assetManager)
     {
     }
 
     protected override Point DoMeasure(int x, int y, int width, int height)
     {
         var totalWidth = 0;
-        var totalHeight = 0;
-
+        var totalHeight = y;
+        
         for (var i = 0; i < Children.Count; i++)
         {
             var child = Children[i];
-            child.Measure(x, y, width, height);
-            var dh = child.Bounds.Height + ViewSpacing;
-            y += dh;
-            totalHeight += dh;
+            child.Measure(x, totalHeight, width, height);
+            totalHeight += child.Bounds.Height + ViewSpacing;
             totalWidth = System.Math.Max(child.Bounds.Width, totalWidth);
         }
 
@@ -40,7 +38,7 @@ public class VerticalLinearLayoutView : ViewBase
         }
     }
 
-    public VerticalLinearLayoutView AddView(IView view)
+    public VerticalLayoutView AddView(IView view)
     {
         Children.Add(view);
         return this;

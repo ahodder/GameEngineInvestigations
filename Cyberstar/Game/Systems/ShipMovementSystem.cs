@@ -2,7 +2,7 @@ using System.Numerics;
 using Cyberstar.Core;
 using Cyberstar.ECS;
 using Cyberstar.Game.Components;
-using Cyberstar.Math;
+using Cyberstar.Maths;
 
 namespace Cyberstar.Game.Systems;
 

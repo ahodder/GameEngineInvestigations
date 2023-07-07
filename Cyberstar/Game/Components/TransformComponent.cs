@@ -1,7 +1,7 @@
 using System.Numerics;
 using Cyberstar.ECS;
 using Cyberstar.Extensions.IO;
-using Cyberstar.Math;
+using Cyberstar.Maths;
 
 namespace Cyberstar.Game.Components;
 

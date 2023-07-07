@@ -10,6 +10,7 @@ public abstract class ViewBase : IView
 {
     public bool IsEnabled { get; set; }
     public Rectangle Bounds { get; private set; }
+    public Rectangle PaddedBounds { get; private set; }
     public Rectangle ContentBounds { get; private set; }
     public Thickness Margin { get; set; }
     public Thickness Padding { get; set; }
@@ -34,8 +35,8 @@ public abstract class ViewBase : IView
             MeasuredSize = RequestedSize;
         
         Bounds = new Rectangle(x, y, Margin.Width + Padding.Width + MeasuredSize.X, Margin.Height + Padding.Height + MeasuredSize.Y);
+        PaddedBounds = new Rectangle(Bounds.Left + Margin.Left, Bounds.Top + Margin.Top, Bounds.Width - Margin.Width, Bounds.Height - Margin.Height);
         ContentBounds = new Rectangle(Bounds.X + Margin.Left + Padding.Left, Bounds.Y + Margin.Top + Padding.Top, MeasuredSize.X, MeasuredSize.Y);
-        ;
     }
 
     /// <summary>
@@ -50,11 +51,11 @@ public abstract class ViewBase : IView
 
     public void Render(in InputData inputData)
     {
-        if (!IsEnabled) return;
+        if (!IsEnabled || Bounds.Width == 0 || Bounds.Height == 0) return;
         
         Raylib.DrawRectangle(Bounds.Left + Margin.Left, Bounds.Top + Margin.Top, Bounds.Width - Margin.Width, Bounds.Height - Margin.Height, BackgroundColor);
 
-        Raylib.BeginScissorMode(ContentBounds.X, ContentBounds.Y, ContentBounds.Width, ContentBounds.Height); 
+        Raylib.BeginScissorMode(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height); 
         DoRenderContent(in inputData);
         Raylib.EndScissorMode();
     }

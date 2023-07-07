@@ -23,8 +23,11 @@ public class ShipBuilderScene : Scene
         atlasView.Rows = 4;
         atlasView.OnCellClick = (x, y) => _logger.Debug($"Grid Click: {x}, {y}");
         atlasView.OnHover = (x, y) => true;
+
+        var spriteCollection = new LabeledExpanderView(assets, atlasView);
+        spriteCollection.Header.OnClick = () => spriteCollection.IsExpanded = !spriteCollection.IsExpanded;
         
-        _uiRenderer = new UiRenderer(atlasView, 0, 0, 1200, 800);
+        _uiRenderer = new UiRenderer(spriteCollection, 0, 0, 1200, 800);
     }
 
     public override void PerformTick(FrameTiming frameTiming)

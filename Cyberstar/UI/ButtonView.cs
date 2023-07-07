@@ -12,7 +12,7 @@ public class ButtonView : LabelView
 
     public override bool WillHandleMouseClick(int mouseX, int mouseY)
     {
-        if (ContentBounds.Contains(mouseX, mouseY))
+        if (PaddedBounds.Contains(mouseX, mouseY))
         {
             OnClick?.Invoke();
             return true;
