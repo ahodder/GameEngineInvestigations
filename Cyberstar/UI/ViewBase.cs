@@ -48,21 +48,26 @@ public abstract class ViewBase : IView
     /// <returns></returns>
     protected abstract Point DoMeasure(int x, int y, int width, int height);
 
-    public void Render()
+    public void Render(in InputData inputData)
     {
         if (!IsEnabled) return;
         
         Raylib.DrawRectangle(Bounds.Left + Margin.Left, Bounds.Top + Margin.Top, Bounds.Width - Margin.Width, Bounds.Height - Margin.Height, BackgroundColor);
 
         Raylib.BeginScissorMode(ContentBounds.X, ContentBounds.Y, ContentBounds.Width, ContentBounds.Height); 
-        DoRenderContent();
+        DoRenderContent(in inputData);
         Raylib.EndScissorMode();
     }
 
     /// <summary>
     /// Renders only the content of the view.
     /// </summary>
-    protected abstract void DoRenderContent();
+    protected abstract void DoRenderContent(in InputData inputData);
+
+    public virtual bool WillReceiveFocus(int x, int y)
+    {
+        return false;
+    }
 
     public virtual bool WillHandleMouseClick(int mouseX, int mouseY)
     {

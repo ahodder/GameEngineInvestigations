@@ -1,5 +1,4 @@
 using System.Drawing;
-using Color = Raylib_cs.Color;
 
 
 namespace Cyberstar.UI;
@@ -57,7 +56,7 @@ public interface IView
     /// <summary>
     /// Renders the view to the given dimensions.
     /// </summary>
-    void Render();
+    void Render(in InputData inputData);
 
     /// <summary>
     /// Determines whether or not the view will handle the mouse given mouse event.
@@ -65,5 +64,5 @@ public interface IView
     /// <param name="mouseX"></param>
     /// <param name="mouseY"></param>
     /// <returns></returns>
-    public bool WillHandleMouseClick(int mouseX, int mouseY);
+    bool WillHandleMouseClick(int mouseX, int mouseY);
 }

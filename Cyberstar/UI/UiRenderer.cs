@@ -1,4 +1,3 @@
-using Cyberstar.AssetManagement;
 using Raylib_cs;
 
 namespace Cyberstar.UI;
@@ -15,9 +14,10 @@ public class UiRenderer
 
     public void Render()
     {
-        RootView.Render();
         var mousePosition = Raylib.GetMousePosition();
+        var inputData = new InputData((int)mousePosition.X, (int)mousePosition.Y);
+        RootView.Render(in inputData);
         if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
-            RootView.WillHandleMouseClick((int)mousePosition.X, (int)mousePosition.Y);
+            RootView.WillHandleMouseClick(inputData.MouseX, inputData.MouseY);
     }
 }

@@ -31,12 +31,12 @@ public class VerticalLinearLayoutView : ViewBase
         return new Point(totalWidth, totalHeight);
     }
 
-    protected override void DoRenderContent()
+    protected override void DoRenderContent(in InputData inputData)
     {
         for (var i = 0; i < Children.Count; i++)
         {
             var child = Children[i];
-            child.Render();
+            child.Render(in inputData);
         }
     }
 

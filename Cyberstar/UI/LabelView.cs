@@ -30,7 +30,7 @@ public class LabelView : ViewBase
         return new Point((int)vec.X, (int)vec.Y);
     }
 
-    protected override void DoRenderContent()
+    protected override void DoRenderContent(in InputData inputData)
     {
         Raylib.DrawTextEx(Font, Text, new Vector2(ContentBounds.X, ContentBounds.Y), FontSize, Spacing, TextColor);
     }

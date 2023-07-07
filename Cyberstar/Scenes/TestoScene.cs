@@ -38,8 +38,6 @@ public class TestoScene : Scene
             }
         }
         
-        // Read player input
-
         EntityManager.RunSystems(frameTiming);
     }
 

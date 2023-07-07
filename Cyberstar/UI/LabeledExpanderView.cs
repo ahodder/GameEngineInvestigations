@@ -18,7 +18,7 @@ public class LabeledExpanderView : ViewBase
         throw new NotImplementedException();
     }
 
-    protected override void DoRenderContent()
+    protected override void DoRenderContent(in InputData inputData)
     {
         throw new NotImplementedException();
     }

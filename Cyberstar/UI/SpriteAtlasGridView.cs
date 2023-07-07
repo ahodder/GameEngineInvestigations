@@ -19,8 +19,8 @@ public class SpriteAtlasGridView : ViewBase
     public Action<int, int>? OnCellClick { get; set; }
     public Func<int, int, bool>? OnHover = (x, y) => false;
 
-    public int CellWidth => (ContentBounds.Width - ColumnSpacing * (Columns + 1)) / Columns;
-    public int CellHeight => (ContentBounds.Height - RowSpacing * (Rows + 1)) / Rows;
+    public int CellWidth { get; set; }
+    public int CellHeight { get; set; }
 
     public SpriteAtlasGridView(AssetManager assetManager, SpriteAtlas spriteAtlas) : base(assetManager)
     {
@@ -29,14 +29,14 @@ public class SpriteAtlasGridView : ViewBase
 
     protected override Point DoMeasure(int x, int y, int width, int height)
     {
-        throw new NotImplementedException();
+        var w = Columns * (ColumnSpacing * 2 + CellWidth);
+        var h = Rows * (RowSpacing * 2 + CellHeight);
+        return new Point(w, h);
     }
 
-    protected override void DoRenderContent()
+    protected override void DoRenderContent(in InputData inputData)
     {
         var spriteAtlasKeys = SpriteAtlas.Sprites.Keys.ToArray();
-        
-        var mousePosition = Raylib.GetMousePosition();
         
         for (var r = 0; r < Rows; r++)
         {
@@ -47,8 +47,8 @@ public class SpriteAtlasGridView : ViewBase
 
                 var size = MathF.Min(w, h);
                 
-                var cOffset = c * (w + ColumnSpacing) + ColumnSpacing;
-                var rOffset = r * (h + RowSpacing) + RowSpacing;
+                var cOffset = ContentBounds.X + c * (w + ColumnSpacing) + ColumnSpacing;
+                var rOffset = ContentBounds.Y + r * (h + RowSpacing) + RowSpacing;
                 
                 Raylib.DrawRectangle(cOffset, rOffset, CellWidth, CellHeight, Color.BLACK);
                 
@@ -60,13 +60,13 @@ public class SpriteAtlasGridView : ViewBase
                 var wo = (w - size) / 2;
                 var ho = (h - size) / 2;
                 var destBounds = new Rectangle(cOffset + wo, rOffset + ho, size, size);
-
-                if (destBounds.Contains(mousePosition))
+                
+                if (destBounds.Contains(new Vector2(inputData.MouseX, inputData.MouseY)))
                 {
                     if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
                         OnCellClick?.Invoke(c, r);
-                    
-                    if (OnHover?.Invoke(c, r) ?? false)
+
+                    if (OnHover?.Invoke(inputData.MouseX, inputData.MouseY) ?? false)
                         Raylib.DrawRectangle(cOffset, rOffset, CellWidth, CellHeight, Color.GREEN);
                 }
                 
