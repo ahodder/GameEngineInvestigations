@@ -61,7 +61,20 @@ public class SpriteAtlasGridView : ViewBase
 
                 var wo = (w - size) / 2;
                 var ho = (h - size) / 2;
-                var destBounds = new Rectangle(cOffset + wo, rOffset + ho, size, size);
+
+                var widthAspectRatio = frame.Width / (float)frame.Height;
+                var heightAspectRatio = frame.Height / (float)frame.Width;
+
+                var widthSize = size;
+                var heightSize = size;
+                if (widthAspectRatio < heightAspectRatio)
+                    widthSize *= widthAspectRatio;
+                else
+                    heightSize *= heightAspectRatio;
+
+                var ratio = widthAspectRatio < heightAspectRatio ? widthAspectRatio : heightAspectRatio;
+                
+                var destBounds = new Rectangle(cOffset + wo + (size - widthSize) / 2, rOffset + ho + (size - heightSize) / 2, widthSize, heightSize);
                 
                 if (destBounds.Contains(new Vector2(inputData.MouseX, inputData.MouseY)))
                 {
