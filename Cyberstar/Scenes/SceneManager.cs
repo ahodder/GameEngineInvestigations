@@ -9,7 +9,7 @@ public class SceneManager : Scene
     public bool ApplicationCloseRequested { get; set; }
     public Scene ActiveScene;
     
-    public SceneManager(ILogger logger, AssetManager assets) : base(logger, assets)
+    public SceneManager(ILogger logger, WindowData windowData, AssetManager assets) : base(logger, windowData, assets)
     {
     }
 

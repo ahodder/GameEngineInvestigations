@@ -9,6 +9,4 @@ public class SpriteAtlas
 
     [JsonProperty("sprites")]
     public Dictionary<string, Sprite> Sprites;
-    
-    
 }

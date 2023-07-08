@@ -24,7 +24,7 @@ public class LabelView : ViewBase
     public float Spacing { get; set; }
     public Color TextColor { get; set; }
 
-    private readonly char[] _charBuffer = new char[512];
+    private readonly char[] _charBuffer = new char[64];
     private int _charCount;
 
     public LabelView(AssetManager assetManager) : base(assetManager)
@@ -34,8 +34,20 @@ public class LabelView : ViewBase
         Spacing = 1f;
         TextColor = Color.BLACK;
         BackgroundColor = Color.WHITE;
+    }
 
-        _charCount = 0;
+    public LabelView(AssetManager assetManager, 
+        Font font,
+        float fontSize,
+        float fontSpacing,
+        Color textColor,
+        Color backgroundColor) : base(assetManager)
+    {
+        Font = font;
+        FontSize = fontSize;
+        Spacing = fontSpacing;
+        TextColor = textColor;
+        BackgroundColor = backgroundColor;
     }
 
     public void SetText(ReadOnlySpan<char> text)

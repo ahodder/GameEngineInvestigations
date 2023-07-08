@@ -18,7 +18,7 @@ public class TestoScene : Scene
     
     private Entity _player;
     
-    public TestoScene(ILogger logger, AssetManager assets) : base(logger, assets)
+    public TestoScene(ILogger logger, WindowData windowData, AssetManager assets) : base(logger, windowData, assets)
     {
         CreateUi();
         CreateWorld();
@@ -71,6 +71,8 @@ public class TestoScene : Scene
 
     public void CreateWorld()
     {
+        Assets.TryLoadSpriteAtlas("dev_ships", out var atlas);
+        
         // Register Systems
         EntityManager.AddSystem(new MainPlayerShipInputSystem());
         EntityManager.AddSystem(new ShipMovementSystem());

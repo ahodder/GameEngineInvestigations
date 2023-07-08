@@ -9,6 +9,8 @@ using Rectangle = Raylib_cs.Rectangle;
 
 namespace Cyberstar.UI;
 
+public delegate void SpriteClicked(Sprite selectedSprite);
+
 public class SpriteAtlasGridView : ViewBase
 {
     public SpriteAtlas SpriteAtlas { get; set; }
@@ -16,7 +18,7 @@ public class SpriteAtlasGridView : ViewBase
     public int Rows { get; set; }
     public int ColumnSpacing { get; set; }
     public int RowSpacing { get; set; }
-    public Action<int, int>? OnCellClick { get; set; }
+    public SpriteClicked? OnCellClick { get; set; }
     public Func<int, int, bool>? OnHover = (x, y) => false;
 
     public int CellWidth { get; set; }
@@ -64,7 +66,7 @@ public class SpriteAtlasGridView : ViewBase
                 if (destBounds.Contains(new Vector2(inputData.MouseX, inputData.MouseY)))
                 {
                     if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
-                        OnCellClick?.Invoke(c, r);
+                        OnCellClick?.Invoke(sprite);
 
                     if (OnHover?.Invoke(inputData.MouseX, inputData.MouseY) ?? false)
                         Raylib.DrawRectangle(cOffset, rOffset, CellWidth, CellHeight, Color.GREEN);

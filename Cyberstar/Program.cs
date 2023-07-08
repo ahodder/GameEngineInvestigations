@@ -4,16 +4,16 @@ using Cyberstar.Logging;
 using Cyberstar.Scenes;
 using Raylib_cs;
 
-Raylib.InitWindow(1200, 800, "Hello, world");
+var windowData = new WindowData("Cyberstar", 1200, 800);
+Raylib.InitWindow(windowData.Width, windowData.Height, windowData.WindowName);
 
 var logger = Log.Instance = new ConsoleLogger();
 var assets = new AssetManager(logger, "assets");
-var sceneManager = new SceneManager(logger, assets);
+var sceneManager = new SceneManager(logger,windowData, assets);
 
-var loadTexture = assets.TryLoadSpriteAtlas("dev_ships", out var atlas);
-sceneManager.BeginLoadActiveScene(new MainMenuScene(sceneManager, logger, assets));
+// sceneManager.BeginLoadActiveScene(new MainMenuScene(sceneManager, logger, windowData, assets));
 
-// sceneManager.BeginLoadActiveScene(new ShipBuilderScene(logger, assets));
+sceneManager.BeginLoadActiveScene(new ShipBuilderScene(logger, windowData, assets));
 
 FrameTiming ft = new FrameTiming();
 while (!Raylib.WindowShouldClose() && !sceneManager.ApplicationCloseRequested)

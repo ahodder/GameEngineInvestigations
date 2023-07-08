@@ -11,7 +11,7 @@ public class MainMenuScene : Scene
     private SceneManager _sceneManager;
     private UiRenderer _uiRenderer;
 
-    public MainMenuScene(SceneManager sceneManager, ILogger logger, AssetManager assets) : base(logger, assets)
+    public MainMenuScene(SceneManager sceneManager, ILogger logger, WindowData windowData, AssetManager assets) : base(logger, windowData, assets)
     {
         var layout = new VerticalLayoutView(assets)
             .AddView(CreateButton("Continue", OnContinueClicked))
@@ -42,7 +42,7 @@ public class MainMenuScene : Scene
     
     public void OnNewGameClicked()
     {
-        _sceneManager.BeginLoadActiveScene(new TestoScene(_logger, Assets));
+        _sceneManager.BeginLoadActiveScene(new TestoScene(_logger, WindowData, Assets));
     }
     
     public void OnLoadGameClicked()
