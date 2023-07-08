@@ -5,17 +5,23 @@ using Cyberstar.ECS;
 using Cyberstar.Game.Components;
 using Cyberstar.Game.Systems;
 using Cyberstar.Logging;
+using Cyberstar.Strings;
+using Cyberstar.UI;
 using Raylib_cs;
 
 namespace Cyberstar.Scenes;
 
 public class TestoScene : Scene
 {
+    private UiRenderer _uiRenderer;
+    private LabelView _fpsCounter;
+    
     private Entity _player;
     
     public TestoScene(ILogger logger, AssetManager assets) : base(logger, assets)
     {
-        Create();
+        CreateUi();
+        CreateWorld();
     }
     
     public override void PerformTick(FrameTiming frameTiming)
@@ -39,9 +45,31 @@ public class TestoScene : Scene
         }
         
         EntityManager.RunSystems(frameTiming);
+        
+        var sb = new ValueStringBuilder(stackalloc char[64]);
+        sb.Append("FPS: ");
+        sb.Append((int)frameTiming.Fps);
+        _fpsCounter.SetText(sb.AsSpan());
+
+        _uiRenderer.Render();
     }
 
-    public void Create()
+    public void CreateUi()
+    {
+        _fpsCounter = new LabelView(Assets);
+        _fpsCounter.FontSize = 26;
+        _fpsCounter.TextColor = Color.GOLD;
+        _fpsCounter.BackgroundColor = Color.BLUE;
+        _fpsCounter.Padding = new Thickness().Set(10);
+        _fpsCounter.Text = "Something";
+        
+        var layout = new VerticalLayoutView(Assets);
+        layout.AddView(_fpsCounter);
+
+        _uiRenderer = new UiRenderer(layout, 0, 0, 1000, 1000);
+    }
+
+    public void CreateWorld()
     {
         // Register Systems
         EntityManager.AddSystem(new MainPlayerShipInputSystem());

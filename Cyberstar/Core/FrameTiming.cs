@@ -1,6 +1,6 @@
 namespace Cyberstar.Core;
 
-public ref struct FrameTiming
+public struct FrameTiming
 {
     public float Fps;
     public float UpdatesPerSecond;
