@@ -1,6 +1,8 @@
-using System.Numerics;
 using Cyberstar.AssetManagement;
 using Cyberstar.Core;
+using Cyberstar.ECS;
+using Cyberstar.Game.Components;
+using Cyberstar.Game.Systems;
 using Cyberstar.Logging;
 using Cyberstar.Sprites;
 using Cyberstar.UI;
@@ -10,17 +12,18 @@ namespace Cyberstar.Scenes;
 
 public class ShipBuilderScene : Scene
 {
-    private SpriteAtlas _shipFrameSpriteAtlas;
-    
+    private SpriteAtlas _spriteAtlas;
+
     private TexturePreviewView _selectedFramePreview;
     private UiRenderer _uiRenderer;
+    private EntityManager _entityManager;
 
-    private Sprite? _spriteFollowingMouse;
-    
+    private Entity? _activeEntity;
+
     public ShipBuilderScene(ILogger logger, WindowData windowData, AssetManager assets) : base(logger, windowData, assets)
     {
-        assets.TryLoadSpriteAtlas("dev_ships", out _shipFrameSpriteAtlas);
-        var atlasView = new SpriteAtlasGridView(assets, _shipFrameSpriteAtlas);
+        assets.TryLoadSpriteAtlas("dev_ships", out _spriteAtlas);
+        var atlasView = new SpriteAtlasGridView(assets, _spriteAtlas);
         atlasView.ColumnSpacing = 10;
         atlasView.RowSpacing = 10;
         atlasView.CellWidth = 50;
@@ -36,45 +39,49 @@ public class ShipBuilderScene : Scene
 
         var currentBuiltShipComponents = new VerticalLayoutView(assets);
         currentBuiltShipComponents.AddView(new LabelView(assets, assets.FontAtlas.DefaultFont, 18, 1, Color.BLACK, Color.GRAY));
-        
+
         var absoluteLayout = new AbsoluteLayout(assets);
         absoluteLayout.AddView(spriteCollection, 0, 0, 400, windowData.Height);
-        
-        
+
+
         _uiRenderer = new UiRenderer(absoluteLayout, 0, 0, windowData.Width, windowData.Height);
+        _entityManager = new EntityManager(logger, 16);
+        _entityManager.AddSystem(new TextureFollowMouseSystem());
+        _entityManager.AddSystem(new SpriteRenderingSystem(assets));
+        _entityManager.AddSystem(new EntityOriginRendererSystem());
     }
 
     private void SelectedShipFrame(Sprite selectedSprite)
     {
-        if (_spriteFollowingMouse == selectedSprite)
-            _spriteFollowingMouse = null;
-        else
-            _spriteFollowingMouse = selectedSprite;
+        if (_activeEntity != null)
+        {
+            _entityManager.DestroyEntity(_activeEntity.Value);
+            _activeEntity = null;
+        }
+
+        var entity = _entityManager.CreateEntity();
+        _entityManager.SetComponentFor(entity, new FollowMouseComponent());
+        _entityManager.SetComponentFor(entity, new SpriteComponent(_spriteAtlas.AtlasName, selectedSprite.SpriteName, 0));
+        _entityManager.SetComponentFor(entity, new TransformComponent());
+        _activeEntity = entity;
     }
 
     public override void PerformTick(FrameTiming frameTiming)
     {
+        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
+        {
+            if (_activeEntity.HasValue && _entityManager.HasComponentFor<FollowMouseComponent>(_activeEntity.Value))
+            {
+                _entityManager.RemoveComponentFor<FollowMouseComponent>(_activeEntity.Value);
+            }
+        }
+        
+        _entityManager.RunSystems(frameTiming);
         RenderUi();
     }
 
     public void RenderUi()
     {
         _uiRenderer.Render();
-
-        if (_spriteFollowingMouse != null)
-        {
-
-            var frame = _spriteFollowingMouse.Frames[0].Rectangle;
-            var mousePosition = Raylib.GetMousePosition();
-
-            var dest = new Rectangle(mousePosition.X - frame.width / 2, mousePosition.Y - frame.height / 2, frame.width, frame.height);
-            
-            Raylib.DrawTexturePro(_shipFrameSpriteAtlas.BackingTexture,
-                frame,
-                dest,
-                Vector2.Zero, 
-                0,
-                Color.WHITE);
-        }
     }
 }

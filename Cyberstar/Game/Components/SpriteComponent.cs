@@ -8,6 +8,13 @@ public struct SpriteComponent : IComponent
     public string SpriteAnimationPath;
     public int SpriteCurrentFrame;
 
+    public SpriteComponent(string spriteAtlas, string spriteAnimationPath, int spriteCurrentFrame)
+    {
+        SpriteAtlas = spriteAtlas;
+        SpriteAnimationPath = spriteAnimationPath;
+        SpriteCurrentFrame = spriteCurrentFrame;
+    }
+
     public void Serialize(BinaryWriter writer)
     {
         writer.Write(SpriteAtlas);

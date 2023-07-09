@@ -1,6 +1,6 @@
 
 
 We need to have some representation of a transform hierarchy
-we need a way to store entity prefabs
 we need a component browser
 we need a text entry view
+we need a way to store entity prefabs

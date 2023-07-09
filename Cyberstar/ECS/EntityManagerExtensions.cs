@@ -101,11 +101,11 @@ public static class EntityManagerExtensions
         entityManager.SetComponentFor(entity, t7);
     }
     
-    public static uint FindEntitiesWith<T>(this EntityManager entityManager, Span<Entity> entityBuffer, uint offset = 0)
-        where T : struct, IComponent
+    public static uint FindEntitiesWith<T1>(this EntityManager entityManager, Span<Entity> entityBuffer, uint offset = 0)
+        where T1 : struct, IComponent
     {
         /* todo ahodder@praethos.com 6/29/22: remove this allocation */
-        return entityManager.FindEntitiesWith(new[] { typeof(T) }.AsSpan(), entityBuffer);
+        return entityManager.FindEntitiesWith(new[] { typeof(T1) }.AsSpan(), entityBuffer);
     }
     
     public static uint FindEntitiesWith<T1, T2>(this EntityManager entityManager, Span<Entity> entityBuffer, uint offset = 0)

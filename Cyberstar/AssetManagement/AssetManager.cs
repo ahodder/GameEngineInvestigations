@@ -74,6 +74,7 @@ public class AssetManager
         spriteAtlas = new SpriteAtlas
         {
             BackingTexture = texture,
+            AtlasName = assetFileName,
             Sprites = sprites,
         };
 

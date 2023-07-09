@@ -13,12 +13,12 @@ public class EntityManager
     /// <summary>
     /// The total number of entities in the manager.
     /// </summary>
-    public int Entities => _entityCount - _destroyedEntities.Count;
+    public uint Entities => (uint)(_entityCount - _destroyedEntities.Count);
 
     /// <summary>
     /// The total number of destroyed entities in the manager.
     /// </summary>
-    public int DestroyedEntities => _destroyedEntities.Count;
+    public uint DestroyedEntities => (uint)_destroyedEntities.Count;
     
     /// <summary>
     /// The logger that the entity manager will use.
@@ -322,6 +322,12 @@ public class EntityManager
         _entityRelations.CopyTo(newMem);
         _entityRelations = newMem;
     }
+    
+    public T ComponentFor<T>(Entity entity) where T : struct, IComponent
+    {
+        var allocator = this.GetAllocatorFor<T>();
+        return allocator.Data.Get(entity);
+    }
 
     public ref T GetComponentFor<T>(Entity entity) where T : struct, IComponent
     {
@@ -407,6 +413,63 @@ public class EntityManager
         }
 
         return cnt;
+    }
+
+    /*
+    public IEnumerable<Entity> FindEntities(ReadOnlySpan<IntPtr> allocatorTypes)
+    {
+        for (var i = 0; i < _entityCount; i++)
+        {
+            var hasAllAllocators = true;
+            for (var j = 0; j < allocatorTypes.Length; j++)
+            {
+                var type = RuntimeTypeHandle.FromIntPtr(allocatorTypes[j]).GetType();
+                var allocator = _componentAllocators[type];
+                var entityWrapper = _allEntities.Span[i];
+                if (!entityWrapper.Alive || !allocator.HasComponentForEntity(entityWrapper.Entity))
+                {
+                    hasAllAllocators = false;
+                    break;
+                }                
+            }
+        
+            if (hasAllAllocators)
+            {
+                var entityWrapper = _allEntities.Span[i];
+                yield return entityWrapper.Entity;
+            }
+        }
+    }
+    */
+    
+    public (uint foundEntities, uint scanEnd) FindEntitiesChunked(ReadOnlySpan<Type> allocatorTypes, Span<Entity> entityBuffer, uint offset = 0)
+    {
+        var cnt = 0u;
+        var i = (int)offset;
+
+        for (; i < _entityCount && cnt < entityBuffer.Length; i++)
+        {
+            var hasAllAllocators = true;
+            for (var j = 0; j < allocatorTypes.Length; j++)
+            {
+                var allocator = _componentAllocators[allocatorTypes[j]];
+                var entityWrapper = _allEntities.Span[i];
+                if (!entityWrapper.Alive || !allocator.HasComponentForEntity(entityWrapper.Entity))
+                {
+                    hasAllAllocators = false;
+                    break;
+                }                
+            }
+        
+            if (hasAllAllocators)
+            {
+                var entityWrapper = _allEntities.Span[i];
+                entityBuffer[(int)cnt] = entityWrapper.Entity;
+                cnt++;
+            }
+        }
+
+        return (cnt, (uint)i);
     }
 
     public void Serialize(Stream stream)

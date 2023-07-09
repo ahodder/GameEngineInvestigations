@@ -7,11 +7,37 @@ namespace Cyberstar.Game.Components;
 
 public struct TransformComponent : IComponent
 {
-    public Vector2 Position { get; private set; }
-    public Vector2 Scale { get; private set; }
-    public float RotationRadians { get; private set; }
+    public Entity Parent { get; private set; }
+    public Vector2 Position { get; set; }
+    public Vector2 Scale { get; set; }
+    public float RotationRadians { get; set; }
 
     public Vector2 Forward => new Vector2(MathF.Cos(RotationRadians), MathF.Sin(RotationRadians));
+    
+    /// <summary>
+    /// Gets the computed transform of this local transform. 
+    /// </summary>
+    /// <param name="entityManager"></param>
+    /// <param name="outOffset"></param>
+    /// <param name="outScale"></param>
+    /// <param name="outRotation"></param>
+    /// <returns></returns>
+    public bool TryGetComputedValues(EntityManager entityManager, out Vector2 outOffset, out Vector2 outScale, out float outRotation)
+    {
+        if (entityManager.TryGetComponentFor<TransformComponent>(Parent, out var transform))
+        {
+            transform.TryGetComputedValues(entityManager, out var localOffset, out var localScale, out var localRotation);
+            outOffset = localOffset + Position;
+            outScale = localScale + Scale;
+            outRotation = localRotation + RotationRadians;
+            return true;
+        }
+
+        outOffset = Position;
+        outScale = Scale;
+        outRotation = RotationRadians;
+        return false;
+    }
 
     public void Translate(Vector2 movement)
     {
@@ -30,6 +56,7 @@ public struct TransformComponent : IComponent
 
     public void Serialize(BinaryWriter writer)
     {
+        writer.Write(Parent);
         writer.Write(Position);
         writer.Write(Scale);
         writer.Write(RotationRadians);
@@ -37,6 +64,7 @@ public struct TransformComponent : IComponent
 
     public void Deserialize(BinaryReader reader)
     {
+        Parent = reader.ReadEntity();
         Position = reader.ReadVector2();
         Scale = reader.ReadVector2();
         RotationRadians = reader.ReadSingle();
