@@ -10,7 +10,7 @@ namespace Cyberstar.UI;
 public class EntryView : ViewBase
 {
     private const float CaretWidth = 1;
-    private const float KeyRepeatDelay = .2f;
+    private const float KeyRepeatDelay = .1f;
     
     public ReadOnlySpan<char> Text
     {
@@ -75,19 +75,16 @@ public class EntryView : ViewBase
             _timeSinceLastCaretFlash = 0;
         }
         
+        var bytes = stackalloc sbyte[_charBuffer.Length];
+        
+        for (var i = 0; i < InsertionPointPosition; i++)
+            bytes[i] = (sbyte)_charBuffer[i];
+        var vec = Raylib.MeasureTextEx(Font, bytes, FontSize, FontSpacing);
+        
         if (_showCaret)
-        {
-            var caretBytes = stackalloc sbyte[_charCount];
-            for (var i = 0; i < InsertionPointPosition; i++)
-                caretBytes[i] = (sbyte)_charBuffer[i];
-            var vec = Raylib.MeasureTextEx(Font, caretBytes, FontSize, FontSpacing);
-
             Raylib.DrawRectangle(ContentBounds.X  + (int)vec.X, ContentBounds.Y + 0, (int)CaretWidth, FontSize, CaretColor);
-        }
         
-        
-        var bytes = stackalloc sbyte[_charCount];
-        for (var i = 0; i < _charCount; i++)
+        for (var i = InsertionPointPosition; i < _charBuffer.Length; i++)
             bytes[i] = (sbyte)_charBuffer[i];
         Raylib.DrawTextEx(Font, bytes, new Vector2(ContentBounds.X, ContentBounds.Y), FontSize, FontSpacing, TextColor);
     }
