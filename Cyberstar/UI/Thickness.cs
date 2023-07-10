@@ -18,6 +18,11 @@ public struct Thickness
     public int Width => Left + Right;
     public int Height => Top + Bottom;
 
+    public Thickness(int size)
+    {
+        Set(size);
+    }
+
     public Thickness Set(int allSides)
     {
         Left = allSides;

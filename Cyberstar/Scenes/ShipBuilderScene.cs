@@ -49,9 +49,15 @@ public class ShipBuilderScene : Scene
         entry.BackgroundColor = Color.GOLD;
         entry.RequestedSize = new Point(150, 20);
         entry.Padding = new Thickness().Set(5);
-        entry.InsertionPointPosition = 2;
         entry.Text = "Hello, ";
         absoluteLayout.AddView(entry, 400, 200, 150, 20);
+        
+        var entry2 = new EntryView(assets, assets.FontAtlas.DefaultFont, 18, .5f);
+        entry2.BackgroundColor = Color.GOLD;
+        entry2.RequestedSize = new Point(150, 20);
+        entry2.Padding = new Thickness().Set(5);
+        entry2.Text = "World";
+        absoluteLayout.AddView(entry2, 400, 400, 150, 20);
 
         _uiRenderer = new UiRenderer(absoluteLayout, 0, 0, windowData.Width, windowData.Height);
         _entityManager = new EntityManager(logger, 16);

@@ -9,6 +9,7 @@ namespace Cyberstar.UI;
 
 public abstract class ViewBase : IView
 {
+    public bool HasFocus { get; protected set; }
     public bool IsEnabled { get; set; }
     public Rectangle Bounds { get; private set; }
     public Rectangle PaddedBounds { get; private set; }
@@ -30,9 +31,8 @@ public abstract class ViewBase : IView
 
     public void Measure(int x, int y, int width, int height)
     {
-        if (RequestedSize == Point.Empty)
-            MeasuredSize = DoMeasure(x, y, width, height);
-        else
+        MeasuredSize = DoMeasure(x, y, width, height);
+        if (RequestedSize != Point.Empty)
             MeasuredSize = RequestedSize;
         
         Bounds = new Rectangle(x, y, Margin.Width + Padding.Width + MeasuredSize.X, Margin.Height + Padding.Height + MeasuredSize.Y);
@@ -65,6 +65,11 @@ public abstract class ViewBase : IView
     /// Renders only the content of the view.
     /// </summary>
     protected abstract void DoRenderContent(in FrameTiming frameTiming, in InputData inputData);
+
+    public virtual void ClearFocus()
+    {
+        HasFocus = false;
+    }
 
     public virtual bool WillReceiveFocus(int x, int y)
     {

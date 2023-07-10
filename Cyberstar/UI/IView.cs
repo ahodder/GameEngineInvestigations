@@ -9,6 +9,11 @@ namespace Cyberstar.UI;
 public interface IView
 {
     /// <summary>
+    /// Whether or not the view has focus.
+    /// </summary>
+    bool HasFocus { get; }
+    
+    /// <summary>
     /// Whether or not the view should render (is the view active in the view hierarchy).
     /// </summary>
     bool IsEnabled { get; set; }
@@ -40,7 +45,7 @@ public interface IView
     /// <summary>
     /// The requested size of the view. If this is nonzero, then the view will always be this size when measured.
     /// </summary>
-    Point RequestedSize { get; }
+    Point RequestedSize { get; set; }
     
     /// <summary>
     /// The background color of the view. This is drawn before the background texture.
@@ -60,6 +65,11 @@ public interface IView
     /// Renders the view to the given dimensions.
     /// </summary>
     void Render(in FrameTiming frameTiming, in InputData inputData);
+
+    /// <summary>
+    /// Clears the view focus. 
+    /// </summary>
+    void ClearFocus();
 
     /// <summary>
     /// Whether or not the view will consume the given key input.

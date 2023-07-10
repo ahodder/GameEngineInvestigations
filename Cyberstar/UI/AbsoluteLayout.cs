@@ -5,9 +5,11 @@ using Raylib_cs;
 
 namespace Cyberstar.UI;
 
-public class AbsoluteLayout : ViewBase
+public class AbsoluteLayout : ViewParent
 {
-    private readonly List<Child> Children = new List<Child>();
+    public override IReadOnlyList<IView> Children => _children;
+    
+    private readonly List<IView> _children = new List<IView>();
     
     public AbsoluteLayout(AssetManager assetManager) : base(assetManager)
     {
@@ -21,9 +23,9 @@ public class AbsoluteLayout : ViewBase
         for (var i = 0; i < Children.Count; i++)
         {
             var child = Children[i];
-            child.View.Measure(child.LayoutParams.X, child.LayoutParams.Y, child.LayoutParams.Width, child.LayoutParams.Height);
-            totalWidth = Math.Max(totalWidth, child.LayoutParams.X + child.LayoutParams.Width);
-            totalHeight = Math.Max(totalHeight, child.LayoutParams.Y + child.LayoutParams.Height);
+            child.Measure(child.Bounds.X, child.Bounds.Y, child.Bounds.Width, child.Bounds.Height);
+            totalWidth = Math.Max(totalWidth, child.Bounds.X + child.Bounds.Width);
+            totalHeight = Math.Max(totalHeight, child.Bounds.Y + child.Bounds.Height);
         }
 
         return new Point(totalWidth, totalHeight);
@@ -34,7 +36,7 @@ public class AbsoluteLayout : ViewBase
         for (var i = 0; i < Children.Count; i++)
         {
             var child = Children[i];
-            child.View.Render(in frameTiming, in inputData);
+            child.Render(in frameTiming, in inputData);
         }
     }
 
@@ -46,51 +48,16 @@ public class AbsoluteLayout : ViewBase
 
     public void AddView(IView child, int x, int y, int width, int height)
     {
-        Children.Add(new Child(child, new LayoutParams(x, y, width, height)));
+        child.RequestedSize = new Point(width, height);
+        child.Measure(x, y, width, height);
+        _children.Add(child);
     }
 
     public override void HandleKeyboardKeys(in FrameTiming frameTiming, Span<KeyboardKey> keys)
     {
         foreach (var child in Children)
         {
-            child.View.HandleKeyboardKeys(in frameTiming, keys);
-        }
-    }
-
-    public override bool WillHandleMouseClick(int mouseX, int mouseY)
-    {
-        foreach (var child in Children)
-            if (child.View.WillHandleMouseClick(mouseX, mouseY))
-                return true;
-
-        return false;
-    }
-
-    private readonly struct Child
-    {
-        public readonly IView View;
-        public readonly LayoutParams LayoutParams;
-
-        public Child(IView view, LayoutParams layoutParams)
-        {
-            View = view;
-            LayoutParams = layoutParams;
-        }
-    }
-
-    private readonly struct LayoutParams
-    {
-        public readonly int X;
-        public readonly int Y;
-        public readonly int Width;
-        public readonly int Height;
-
-        public LayoutParams(int x, int y, int width, int height)
-        {
-            X = x;
-            Y = y;
-            Width = width;
-            Height = height;
+            child.HandleKeyboardKeys(in frameTiming, keys);
         }
     }
 }

@@ -12,7 +12,6 @@ var assets = new AssetManager(logger, "assets");
 var sceneManager = new SceneManager(logger,windowData, assets);
 
 // sceneManager.BeginLoadActiveScene(new MainMenuScene(sceneManager, logger, windowData, assets));
-
 sceneManager.BeginLoadActiveScene(new ShipBuilderScene(logger, windowData, assets));
 
 FrameTiming ft = new FrameTiming();

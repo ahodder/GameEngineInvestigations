@@ -81,16 +81,22 @@ public class EntryView : ViewBase
             bytes[i] = (sbyte)_charBuffer[i];
         var vec = Raylib.MeasureTextEx(Font, bytes, FontSize, FontSpacing);
         
-        if (_showCaret)
+        if (_showCaret && HasFocus)
             Raylib.DrawRectangle(ContentBounds.X  + (int)vec.X, ContentBounds.Y + 0, (int)CaretWidth, FontSize, CaretColor);
         
         for (var i = InsertionPointPosition; i < _charBuffer.Length; i++)
             bytes[i] = (sbyte)_charBuffer[i];
+        
+        vec = Raylib.MeasureTextEx(Font, bytes, FontSize, FontSpacing);
+        
+        Raylib.DrawRectangleLines(ContentBounds.X, ContentBounds.Y, (int)vec.X, (int)vec.Y, Color.GREEN);
         Raylib.DrawTextEx(Font, bytes, new Vector2(ContentBounds.X, ContentBounds.Y), FontSize, FontSpacing, TextColor);
     }
     
     public override void HandleKeyboardKeys(in FrameTiming frameTiming, Span<KeyboardKey> keys)
     {
+        if (!HasFocus) return;
+        
         for (var i = 0; i < keys.Length; i++)
         {
             var key = keys[i];
@@ -138,6 +144,18 @@ public class EntryView : ViewBase
         }
 
         _timeSinceLastKeyRepeat += frameTiming.DeltaTime;
+    }
+
+    public override unsafe bool WillHandleMouseClick(int mouseX, int mouseY)
+    {
+        if (PaddedBounds.Contains(mouseX, mouseY))
+        {
+            HasFocus = true;
+            return true;
+        }
+
+        HasFocus = false;
+        return false;
     }
 
     public void InsertChar(char insertedChar)

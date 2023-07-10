@@ -7,7 +7,11 @@ namespace Cyberstar.UI;
 
 public class VerticalLayoutView : ViewParent
 {
+    public override IReadOnlyList<IView> Children => _children;
+    
     public int ViewSpacing { get; set; }
+
+    private readonly List<IView> _children = new List<IView>();
 
     public VerticalLayoutView(AssetManager assetManager) : base(assetManager)
     {
@@ -40,7 +44,7 @@ public class VerticalLayoutView : ViewParent
 
     public VerticalLayoutView AddView(IView view)
     {
-        Children.Add(view);
+        _children.Add(view);
         return this;
     }
 
