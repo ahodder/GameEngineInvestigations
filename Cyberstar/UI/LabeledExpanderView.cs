@@ -1,5 +1,6 @@
 using System.Drawing;
 using Cyberstar.AssetManagement;
+using Cyberstar.Core;
 using Color = Raylib_cs.Color;
 
 namespace Cyberstar.UI;
@@ -50,10 +51,10 @@ public class LabeledExpanderView : ViewBase
         return new Point(totalWidth, totalHeight);
     }
 
-    protected override void DoRenderContent(in InputData inputData)
+    protected override void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)
     {
-        ExpandedView.Render(in inputData);
-        Header.Render(in inputData);
+        ExpandedView.Render(in frameTiming, in inputData);
+        Header.Render(in frameTiming, in inputData);
     }
 
     public override bool WillHandleMouseClick(int mouseX, int mouseY)

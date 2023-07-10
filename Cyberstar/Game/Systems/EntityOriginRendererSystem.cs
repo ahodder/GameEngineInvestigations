@@ -1,4 +1,5 @@
 using System.Numerics;
+using Cyberstar.Core;
 using Cyberstar.ECS;
 using Cyberstar.Game.Components;
 using Raylib_cs;
@@ -11,13 +12,13 @@ public class EntityOriginRendererSystem : ComponentIteratorSystemBase
     {
     }
 
-    protected override void HandleEntities(ReadOnlySpan<Entity> entities, uint count)
+    protected override void HandleEntities(in FrameTiming frameTiming, ReadOnlySpan<Entity> entities, uint count)
     {
         for (var i = 0; i < count; i++)
         {
             var entity = entities[i];
-            ref var transform = ref EntityManager.GetComponentFor<TransformComponent>(entity);
-            Raylib.DrawSphere(new Vector3(transform.Position, 0), 50f, Color.RED);            
+            ref var transform = ref EntityManager!.GetComponentFor<TransformComponent>(entity);
+            Raylib.DrawCircle((int)transform.Position.X, (int)transform.Position.Y, 5f, Color.RED);            
         }
     }
 }

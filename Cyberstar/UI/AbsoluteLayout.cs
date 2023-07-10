@@ -1,5 +1,7 @@
 using System.Drawing;
 using Cyberstar.AssetManagement;
+using Cyberstar.Core;
+using Raylib_cs;
 
 namespace Cyberstar.UI;
 
@@ -27,12 +29,12 @@ public class AbsoluteLayout : ViewBase
         return new Point(totalWidth, totalHeight);
     }
 
-    protected override void DoRenderContent(in InputData inputData)
+    protected override void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)
     {
         for (var i = 0; i < Children.Count; i++)
         {
             var child = Children[i];
-            child.View.Render(in inputData);
+            child.View.Render(in frameTiming, in inputData);
         }
     }
 
@@ -45,6 +47,23 @@ public class AbsoluteLayout : ViewBase
     public void AddView(IView child, int x, int y, int width, int height)
     {
         Children.Add(new Child(child, new LayoutParams(x, y, width, height)));
+    }
+
+    public override void HandleKeyboardKeys(in FrameTiming frameTiming, Span<KeyboardKey> keys)
+    {
+        foreach (var child in Children)
+        {
+            child.View.HandleKeyboardKeys(in frameTiming, keys);
+        }
+    }
+
+    public override bool WillHandleMouseClick(int mouseX, int mouseY)
+    {
+        foreach (var child in Children)
+            if (child.View.WillHandleMouseClick(mouseX, mouseY))
+                return true;
+
+        return false;
     }
 
     private readonly struct Child

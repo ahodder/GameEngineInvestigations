@@ -11,18 +11,20 @@ public abstract class ComponentIteratorSystemBase : SystemBase
         _allocatorTypes = allocatorTypes;
     }
     
-    public sealed override void Update(FrameTiming deltaTime)
+    public sealed override void Update(in FrameTiming deltaTime)
     {
+        if (EntityManager == null) return;
+        
         Span<Entity> entityBuffer = stackalloc Entity[128];
         var entities = EntityManager.Entities;
         var offset = 0u;
         do
         {
             var result = EntityManager.FindEntitiesChunked(_allocatorTypes.AsSpan(), entityBuffer, offset);
-            HandleEntities(entityBuffer, result.foundEntities);
+            HandleEntities(in deltaTime, entityBuffer, result.foundEntities);
             offset = result.scanEnd;
         } while (offset < entities);
     }
 
-    protected abstract void HandleEntities(ReadOnlySpan<Entity> entities, uint count);
+    protected abstract void HandleEntities(in FrameTiming frameTiming, ReadOnlySpan<Entity> entities, uint count);
 }

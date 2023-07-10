@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Numerics;
 using Cyberstar.AssetManagement;
+using Cyberstar.Core;
 using Cyberstar.Extensions.Raylib;
 using Cyberstar.Sprites;
 using Raylib_cs;
@@ -13,7 +14,8 @@ public delegate void SpriteClicked(Sprite selectedSprite);
 
 public class SpriteAtlasGridView : ViewBase
 {
-    public SpriteAtlas SpriteAtlas { get; set; }
+    public SpriteAtlas SpriteAtlas { get; }
+    public string[] Keys { get; }
     public int Columns { get; set; }
     public int Rows { get; set; }
     public int ColumnSpacing { get; set; }
@@ -27,6 +29,7 @@ public class SpriteAtlasGridView : ViewBase
     public SpriteAtlasGridView(AssetManager assetManager, SpriteAtlas spriteAtlas) : base(assetManager)
     {
         SpriteAtlas = spriteAtlas;
+        Keys = SpriteAtlas.Sprites.Keys.ToArray();
     }
 
     protected override Point DoMeasure(int x, int y, int width, int height)
@@ -36,10 +39,8 @@ public class SpriteAtlasGridView : ViewBase
         return new Point(w, h);
     }
 
-    protected override void DoRenderContent(in InputData inputData)
+    protected override void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)
     {
-        var spriteAtlasKeys = SpriteAtlas.Sprites.Keys.ToArray();
-        
         for (var r = 0; r < Rows; r++)
         {
             for (var c = 0; c < Columns; c++)
@@ -55,8 +56,8 @@ public class SpriteAtlasGridView : ViewBase
                 Raylib.DrawRectangle(cOffset, rOffset, CellWidth, CellHeight, Color.BLACK);
                 
                 var index = Columns * r + c;
-                if (index >= spriteAtlasKeys.Length) continue;
-                var sprite = SpriteAtlas.Sprites[spriteAtlasKeys[index]];
+                if (index >= Keys.Length) continue;
+                var sprite = SpriteAtlas.Sprites[Keys[index]];
                 var frame = sprite.Frames[0];
 
                 var wo = (w - size) / 2;
@@ -72,8 +73,6 @@ public class SpriteAtlasGridView : ViewBase
                 else
                     heightSize *= heightAspectRatio;
 
-                var ratio = widthAspectRatio < heightAspectRatio ? widthAspectRatio : heightAspectRatio;
-                
                 var destBounds = new Rectangle(cOffset + wo + (size - widthSize) / 2, rOffset + ho + (size - heightSize) / 2, widthSize, heightSize);
                 
                 if (destBounds.Contains(new Vector2(inputData.MouseX, inputData.MouseY)))
@@ -92,5 +91,39 @@ public class SpriteAtlasGridView : ViewBase
                     0, Color.WHITE);
             }
         }
+    }
+
+    public override bool WillHandleMouseClick(int mouseX, int mouseY)
+    {
+        for (var r = 0; r < Rows; r++)
+        {
+            for (var c = 0; c < Columns; c++)
+            {
+                var w = CellWidth;
+                var h = CellHeight;
+
+                var size = MathF.Min(w, h);
+                
+                var cOffset = ContentBounds.X + c * (w + ColumnSpacing) + ColumnSpacing;
+                var rOffset = ContentBounds.Y + r * (h + RowSpacing) + RowSpacing;
+                
+                var index = Columns * r + c;
+                if (index >= Keys.Length) continue;
+
+                var wo = (w - size) / 2;
+                var ho = (h - size) / 2;
+
+                var destBounds = new Rectangle(cOffset + wo, rOffset + ho, size, size);
+                
+                if (destBounds.Contains(new Vector2(mouseX, mouseY)))
+                {
+                    var sprite = SpriteAtlas.Sprites[Keys[index]];
+                    OnCellClick?.Invoke(sprite);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

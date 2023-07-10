@@ -51,7 +51,7 @@ public class TestoScene : Scene
         sb.Append((int)frameTiming.Fps);
         _fpsCounter.SetText(sb.AsSpan());
 
-        _uiRenderer.Render();
+        _uiRenderer.Render(in frameTiming);
     }
 
     public void CreateUi()

@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Numerics;
 using Cyberstar.AssetManagement;
+using Cyberstar.Core;
 using Raylib_cs;
 using Color = Raylib_cs.Color;
 using Rectangle = Raylib_cs.Rectangle;
@@ -35,7 +36,7 @@ public class TexturePreviewView : ViewBase
 
     }
 
-    protected override void DoRenderContent(in InputData inputData)
+    protected override void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)
     {
         Raylib.DrawTexturePro(Texture,
             TextureContents,

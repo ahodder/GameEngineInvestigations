@@ -1,3 +1,4 @@
+using System.Drawing;
 using Cyberstar.AssetManagement;
 using Cyberstar.Core;
 using Cyberstar.ECS;
@@ -7,6 +8,7 @@ using Cyberstar.Logging;
 using Cyberstar.Sprites;
 using Cyberstar.UI;
 using Raylib_cs;
+using Color = Raylib_cs.Color;
 
 namespace Cyberstar.Scenes;
 
@@ -43,6 +45,13 @@ public class ShipBuilderScene : Scene
         var absoluteLayout = new AbsoluteLayout(assets);
         absoluteLayout.AddView(spriteCollection, 0, 0, 400, windowData.Height);
 
+        var entry = new EntryView(assets, assets.FontAtlas.DefaultFont, 18, .5f);
+        entry.BackgroundColor = Color.GOLD;
+        entry.RequestedSize = new Point(150, 20);
+        entry.Padding = new Thickness().Set(5);
+        entry.InsertionPointPosition = 2;
+        entry.Text = "Hello, ";
+        absoluteLayout.AddView(entry, 400, 200, 150, 20);
 
         _uiRenderer = new UiRenderer(absoluteLayout, 0, 0, windowData.Width, windowData.Height);
         _entityManager = new EntityManager(logger, 16);
@@ -77,11 +86,11 @@ public class ShipBuilderScene : Scene
         }
         
         _entityManager.RunSystems(frameTiming);
-        RenderUi();
+        RenderUi(in frameTiming);
     }
 
-    public void RenderUi()
+    public void RenderUi(in FrameTiming frameTiming)
     {
-        _uiRenderer.Render();
+        _uiRenderer.Render(in frameTiming);
     }
 }

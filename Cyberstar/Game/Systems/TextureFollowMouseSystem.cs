@@ -1,3 +1,4 @@
+using System.Numerics;
 using Cyberstar.Core;
 using Cyberstar.ECS;
 using Cyberstar.Game.Components;
@@ -5,29 +6,25 @@ using Raylib_cs;
 
 namespace Cyberstar.Game.Systems;
 
-public class TextureFollowMouseSystem : SystemBase
+public class TextureFollowMouseSystem : ComponentIteratorSystemBase
 {
-    private readonly Type[] _searchTypes = new[] { typeof(TransformComponent), typeof(FollowMouseComponent) };
-
-    public override void Update(FrameTiming deltaTime)
+    private Vector2 _mousePosition;
+    
+    public TextureFollowMouseSystem() : base(new[] { typeof(TransformComponent), typeof(FollowMouseComponent) })
     {
-        var offset = 0u;
-        Span<Entity> entities = stackalloc Entity[32];
-        var found = 0u;
+    }
 
-        var mousePosition = Raylib.GetMousePosition();
+    public override void PreUpdate()
+    {
+        _mousePosition = Raylib.GetMousePosition();
+    }
 
-        do
+    protected override void HandleEntities(in FrameTiming frameTiming, ReadOnlySpan<Entity> entities, uint count)
+    {
+        for (var i = 0; i < count; i++)
         {
-            found = EntityManager.FindEntitiesWith(_searchTypes, entities);
-
-            for (var i = 0; i < found; i++)
-            {
-                ref var transform = ref EntityManager.GetComponentFor<TransformComponent>(entities[i]);
-                transform.Position = mousePosition;
-            }
-
-            offset += found;
-        } while (found >= entities.Length);
+            ref var transform = ref EntityManager!.GetComponentFor<TransformComponent>(entities[i]);
+            transform.Position = _mousePosition;
+        }
     }
 }

@@ -7,45 +7,33 @@ using Raylib_cs;
 
 namespace Cyberstar.Game.Systems;
 
-public class SpriteRenderingSystem : SystemBase
+public class SpriteRenderingSystem : ComponentIteratorSystemBase
 {
-    private readonly Type[] _searchTypes = new[] { typeof(SpriteComponent), typeof(TransformComponent) };
 
     private readonly AssetManager _assetManager;
 
-    public SpriteRenderingSystem(AssetManager assetManager)
+    public SpriteRenderingSystem(AssetManager assetManager) : base(new[] { typeof(SpriteComponent), typeof(TransformComponent) })
     {
         _assetManager = assetManager;
     }
-    
-    public override void Update(FrameTiming deltaTime)
+
+    protected override void HandleEntities(in FrameTiming frameTiming, ReadOnlySpan<Entity> entities, uint count)
     {
-        var offset = 0u;
-        Span<Entity> entities = stackalloc Entity[32];
-        var found = 0u;
-
-        do
+        for (var i = 0; i < count; i++)
         {
-            found = EntityManager.FindEntitiesWith(_searchTypes, entities);
+            ref var sprite = ref EntityManager!.GetComponentFor<SpriteComponent>(entities[i]);
+            ref var transform = ref EntityManager.GetComponentFor<TransformComponent>(entities[i]);
 
-            for (var i = 0; i < found; i++)
-            {
-                ref var sprite = ref EntityManager.GetComponentFor<SpriteComponent>(entities[i]);
-                ref var transform = ref EntityManager.GetComponentFor<TransformComponent>(entities[i]);
+            if (!_assetManager.TryGetSpriteFromAtlas(sprite.SpriteAtlas, sprite.SpriteAnimationPath, sprite.SpriteCurrentFrame, out var texture, out var frame))
+                continue;
 
-                if (!_assetManager.TryGetSpriteFromAtlas(sprite.SpriteAtlas, sprite.SpriteAnimationPath, sprite.SpriteCurrentFrame, out var texture, out var frame))
-                    continue;
-
-                var pos = transform.Position;
-                Raylib.DrawTexturePro(texture,
-                    frame,
-                    new Rectangle(pos.X, pos.Y, frame.width, frame.height),
-                    new Vector2(frame.width / 2f, frame.height / 2f),
-                    transform.RotationRadians * 180 / MathF.PI,
-                    Color.WHITE);
-            }
-
-            offset += found;
-        } while (found >= entities.Length);
+            var pos = transform.Position;
+            Raylib.DrawTexturePro(texture,
+                frame,
+                new Rectangle(pos.X, pos.Y, frame.width, frame.height),
+                new Vector2(frame.width / 2f, frame.height / 2f),
+                transform.RotationRadians * 180 / MathF.PI,
+                Color.WHITE);
+        }
     }
 }

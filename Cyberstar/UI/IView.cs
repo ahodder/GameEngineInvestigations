@@ -1,4 +1,7 @@
 using System.Drawing;
+using Cyberstar.Core;
+using Raylib_cs;
+using Rectangle = System.Drawing.Rectangle;
 
 
 namespace Cyberstar.UI;
@@ -56,7 +59,13 @@ public interface IView
     /// <summary>
     /// Renders the view to the given dimensions.
     /// </summary>
-    void Render(in InputData inputData);
+    void Render(in FrameTiming frameTiming, in InputData inputData);
+
+    /// <summary>
+    /// Whether or not the view will consume the given key input.
+    /// </summary>
+    /// <param name="keys"></param>
+    void HandleKeyboardKeys(in FrameTiming frameTiming, Span<KeyboardKey> keys);
 
     /// <summary>
     /// Determines whether or not the view will handle the mouse given mouse event.

@@ -1,12 +1,12 @@
 using System.Drawing;
 using Cyberstar.AssetManagement;
+using Cyberstar.Core;
+using Raylib_cs;
 
 namespace Cyberstar.UI;
 
-public class VerticalLayoutView : ViewBase
+public class VerticalLayoutView : ViewParent
 {
-    public List<IView> Children { get; } = new List<IView>();
-
     public int ViewSpacing { get; set; }
 
     public VerticalLayoutView(AssetManager assetManager) : base(assetManager)
@@ -23,18 +23,18 @@ public class VerticalLayoutView : ViewBase
             var child = Children[i];
             child.Measure(x, totalHeight, width, height);
             totalHeight += child.Bounds.Height + ViewSpacing;
-            totalWidth = System.Math.Max(child.Bounds.Width, totalWidth);
+            totalWidth = Math.Max(child.Bounds.Width, totalWidth);
         }
 
         return new Point(totalWidth, totalHeight);
     }
 
-    protected override void DoRenderContent(in InputData inputData)
+    protected override void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)
     {
         for (var i = 0; i < Children.Count; i++)
         {
             var child = Children[i];
-            child.Render(in inputData);
+            child.Render(in frameTiming, in inputData);
         }
     }
 
@@ -42,6 +42,14 @@ public class VerticalLayoutView : ViewBase
     {
         Children.Add(view);
         return this;
+    }
+
+    public override void HandleKeyboardKeys(in FrameTiming frameTiming, Span<KeyboardKey> keys)
+    {
+        foreach (var child in Children)
+        {
+            child.HandleKeyboardKeys(frameTiming, keys);
+        }
     }
 
     public override bool WillHandleMouseClick(int mouseX, int mouseY)

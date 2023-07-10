@@ -1,5 +1,6 @@
 using System.Drawing;
 using Cyberstar.AssetManagement;
+using Cyberstar.Core;
 using Cyberstar.ECS;
 
 namespace Cyberstar.UI;
@@ -18,7 +19,7 @@ public class EntityHierarchyView : ViewBase
         throw new NotImplementedException();
     }
 
-    protected override void DoRenderContent(in InputData inputData)
+    protected override void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)
     {
         throw new NotImplementedException();
     }

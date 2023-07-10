@@ -61,6 +61,12 @@ public class EntityManager
     private Dictionary<Type, IComponentAllocator> _componentAllocators;
 
     /// <summary>
+    /// The dictionary of global components that needed for the entity manager. This is things such as
+    /// Cameras, frame timing etc...
+    /// </summary>
+    private Dictionary<Type, IComponent> _globalComponents;
+
+    /// <summary>
     /// The collection of systems that will run for the manager.
     /// </summary>
     private List<ISystem> _systems;
@@ -73,6 +79,7 @@ public class EntityManager
         _entityToNodeIndex = new Dictionary<Entity, int>();
         _destroyedEntities = new Queue<int>();
         _componentAllocators = new Dictionary<Type, IComponentAllocator>();
+        _globalComponents = new Dictionary<Type, IComponent>();
         _systems = new List<ISystem>();
     }
 
@@ -108,7 +115,7 @@ public class EntityManager
         
         for (var i = 0; i < _systems.Count; i++)
             if (_systems[i].Enabled)
-                _systems[i].Update(frameTiming);
+                _systems[i].Update(in frameTiming);
         
         for (var i = 0; i < _systems.Count; i++)
             if (_systems[i].Enabled)
@@ -321,6 +328,33 @@ public class EntityManager
         var newMem = new Memory<Relation>(new Relation[_entityRelations.Length]);
         _entityRelations.CopyTo(newMem);
         _entityRelations = newMem;
+    }
+
+    /// <summary>
+    /// Attempts to get the component of the given type. If it does not exist, return false.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public bool TryGetGlobalComponent<T>(out T t) where T : struct, IComponent
+    {
+        if (_globalComponents.TryGetValue(typeof(T), out var component))
+        {
+            t = (T)component;
+            return true;
+        }
+
+        t = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Sets the global component for the given type.
+    /// </summary>
+    /// <param name="t"></param>
+    /// <typeparam name="T"></typeparam>
+    public void SetGlobalComponent<T>(T t) where T : struct, IComponent
+    {
+        _globalComponents[typeof(T)] = t;
     }
     
     public T ComponentFor<T>(Entity entity) where T : struct, IComponent

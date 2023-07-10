@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Numerics;
 using Cyberstar.AssetManagement;
+using Cyberstar.Core;
 using Raylib_cs;
 using Color = Raylib_cs.Color;
 
@@ -21,7 +22,7 @@ public class LabelView : ViewBase
         }
     }
     public float FontSize { get; set; }
-    public float Spacing { get; set; }
+    public float FontSpacing { get; set; }
     public Color TextColor { get; set; }
 
     private readonly char[] _charBuffer = new char[64];
@@ -31,7 +32,7 @@ public class LabelView : ViewBase
     {
         Font = assetManager.FontAtlas.DefaultFont;
         FontSize = 12f;
-        Spacing = 1f;
+        FontSpacing = 1f;
         TextColor = Color.BLACK;
         BackgroundColor = Color.WHITE;
     }
@@ -39,13 +40,13 @@ public class LabelView : ViewBase
     public LabelView(AssetManager assetManager, 
         Font font,
         float fontSize,
-        float fontSpacing,
+        float fontFontSpacing,
         Color textColor,
         Color backgroundColor) : base(assetManager)
     {
         Font = font;
         FontSize = fontSize;
-        Spacing = fontSpacing;
+        FontSpacing = fontFontSpacing;
         TextColor = textColor;
         BackgroundColor = backgroundColor;
     }
@@ -61,16 +62,16 @@ public class LabelView : ViewBase
         var bytes = stackalloc sbyte[_charCount];
         for (var i = 0; i < _charCount; i++)
             bytes[i] = (sbyte)_charBuffer[i];
-        var vec = Raylib.MeasureTextEx(Font, bytes, FontSize, Spacing);
+        var vec = Raylib.MeasureTextEx(Font, bytes, FontSize, FontSpacing);
         
         return new Point((int)vec.X, (int)vec.Y);
     }
 
-    protected override unsafe void DoRenderContent(in InputData inputData)
+    protected override unsafe void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)
     {
         var bytes = stackalloc sbyte[_charCount];
         for (var i = 0; i < _charCount; i++)
             bytes[i] = (sbyte)_charBuffer[i];
-        Raylib.DrawTextEx(Font, bytes, new Vector2(ContentBounds.X, ContentBounds.Y), FontSize, Spacing, TextColor);
+        Raylib.DrawTextEx(Font, bytes, new Vector2(ContentBounds.X, ContentBounds.Y), FontSize, FontSpacing, TextColor);
     }
 }

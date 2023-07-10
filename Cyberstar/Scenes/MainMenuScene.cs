@@ -26,13 +26,13 @@ public class MainMenuScene : Scene
     
     public override void PerformTick(FrameTiming frameTiming)
     {
-        RenderUi();
+        RenderUi(in frameTiming);
     }
 
     
-    public void RenderUi() 
+    public void RenderUi(in FrameTiming frameTiming) 
     {
-        _uiRenderer.Render();
+        _uiRenderer.Render(in frameTiming);
     }
 
     public void OnContinueClicked()
