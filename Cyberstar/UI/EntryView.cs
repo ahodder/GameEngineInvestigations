@@ -57,6 +57,23 @@ public class EntryView : ViewBase
         _keyRepeatDelay = KeyRepeatDelay;
     }
 
+    public EntryView(AssetManager assetManager,
+        Font? font = null,
+        int fontSize = 18,
+        float fontSpacing = 1f,
+        float caretFlashSpeedSeconds = 0.5f) : base(assetManager)
+    {
+        Font = font ?? assetManager.FontAtlas.DefaultFont;
+        FontSize = fontSize;
+        FontSpacing = fontSpacing;
+        CaretFlashSpeedSeconds = caretFlashSpeedSeconds;
+        _charBuffer = new char[64];
+        CaretColor = Color.BLACK;
+        _keyRepeatDelay = KeyRepeatDelay;
+        
+        TextColor = Color.WHITE;
+    } 
+
     protected override unsafe Point DoMeasure(int x, int y, int width, int height)
     {
         var bytes = stackalloc sbyte[_charCount];

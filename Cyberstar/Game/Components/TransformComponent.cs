@@ -7,10 +7,10 @@ namespace Cyberstar.Game.Components;
 
 public struct TransformComponent : IComponent
 {
-    public Entity Parent { get; private set; }
-    public Vector2 Position { get; set; }
-    public Vector2 Scale { get; set; }
-    public float RotationRadians { get; set; }
+    public Entity Parent;
+    public Vector2 Position;
+    public Vector2 Scale;
+    public float RotationRadians;
 
     public Vector2 Forward => new Vector2(MathF.Cos(RotationRadians), MathF.Sin(RotationRadians));
     

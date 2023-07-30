@@ -9,6 +9,11 @@ namespace Cyberstar.UI;
 public interface IView
 {
     /// <summary>
+    /// The tag that is used to find views in hierarchies.
+    /// </summary>
+    string Tag { get; }
+    
+    /// <summary>
     /// Whether or not the view has focus.
     /// </summary>
     bool HasFocus { get; }
@@ -17,6 +22,16 @@ public interface IView
     /// Whether or not the view should render (is the view active in the view hierarchy).
     /// </summary>
     bool IsEnabled { get; set; }
+    
+    /// <summary>
+    /// The parent of this view.
+    /// </summary>
+    ViewParent? Parent { get; set; }
+    
+    /// <summary>
+    /// Whether or not the view needs to be remeasured.
+    /// </summary>
+    bool NeedsRemeasure { get; set; }
     
     /// <summary>
     /// The real-space complete bounds of the view.
@@ -50,7 +65,7 @@ public interface IView
     /// <summary>
     /// The background color of the view. This is drawn before the background texture.
     /// </summary>
-    Raylib_cs.Color BackgroundColor { get; set; }
+    Raylib_cs.Color? BackgroundColor { get; set; }
     
     /// <summary>
     /// Requests that the view measure itself to fit the smallest area possible.

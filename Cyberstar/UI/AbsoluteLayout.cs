@@ -7,10 +7,6 @@ namespace Cyberstar.UI;
 
 public class AbsoluteLayout : ViewParent
 {
-    public override IReadOnlyList<IView> Children => _children;
-    
-    private readonly List<IView> _children = new List<IView>();
-    
     public AbsoluteLayout(AssetManager assetManager) : base(assetManager)
     {
     }
@@ -50,7 +46,7 @@ public class AbsoluteLayout : ViewParent
     {
         child.RequestedSize = new Point(width, height);
         child.Measure(x, y, width, height);
-        _children.Add(child);
+        AddChild(child);
     }
 
     public override void HandleKeyboardKeys(in FrameTiming frameTiming, Span<KeyboardKey> keys)

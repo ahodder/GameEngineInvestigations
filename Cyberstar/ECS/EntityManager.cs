@@ -331,6 +331,21 @@ public class EntityManager
     }
 
     /// <summary>
+    /// Meant to retrieve all components that an entity has. This is not meant for ecs code.
+    /// </summary>
+    /// <param name="components"></param>
+    /// <returns></returns>
+    public bool TryGetAllComponents(Entity entity, List<IComponent> components)
+    {
+        var cnt = components.Count;
+        foreach (var allocator in _componentAllocators.Values)
+            if (allocator.HasComponentForEntity(entity))
+                components.Add(allocator[entity]);
+
+        return cnt < components.Count;
+    }
+
+    /// <summary>
     /// Attempts to get the component of the given type. If it does not exist, return false.
     /// </summary>
     /// <typeparam name="T"></typeparam>

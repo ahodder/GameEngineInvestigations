@@ -38,17 +38,16 @@ public class LabelView : ViewBase
     }
 
     public LabelView(AssetManager assetManager, 
-        Font font,
-        float fontSize,
-        float fontFontSpacing,
-        Color textColor,
-        Color backgroundColor) : base(assetManager)
+        ReadOnlySpan<char> text,
+        Font? font = null,
+        float fontSize = 18,
+        float fontFontSpacing = 1f) : base(assetManager)
     {
-        Font = font;
+        Text = text;
+        Font = font ?? assetManager.FontAtlas.DefaultFont;
         FontSize = fontSize;
         FontSpacing = fontFontSpacing;
-        TextColor = textColor;
-        BackgroundColor = backgroundColor;
+        TextColor = Color.WHITE;
     }
 
     public void SetText(ReadOnlySpan<char> text)

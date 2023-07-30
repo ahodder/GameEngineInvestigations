@@ -13,12 +13,12 @@ public class MainMenuScene : Scene
 
     public MainMenuScene(SceneManager sceneManager, ILogger logger, WindowData windowData, AssetManager assets) : base(logger, windowData, assets)
     {
-        var layout = new VerticalLayoutView(assets)
-            .AddView(CreateButton("Continue", OnContinueClicked))
-            .AddView(CreateButton("New Game", OnNewGameClicked))
-            .AddView(CreateButton("Load Game", OnLoadGameClicked))
-            .AddView(CreateButton("Settings", OnSettingsClicked))
-            .AddView(CreateButton("Exit", OnExitClicked));
+        var layout = new VerticalLayoutView(assets);
+        layout.AddView(CreateButton("Continue", OnContinueClicked));
+        layout.AddView(CreateButton("New Game", OnNewGameClicked));
+        layout.AddView(CreateButton("Load Game", OnLoadGameClicked));
+        layout.AddView(CreateButton("Settings", OnSettingsClicked));
+        layout.AddView(CreateButton("Exit", OnExitClicked));
 
         _sceneManager = sceneManager;
         _uiRenderer = new UiRenderer(layout, 0, 0, 500, 500);

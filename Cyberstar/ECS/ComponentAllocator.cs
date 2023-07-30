@@ -6,13 +6,15 @@ namespace Cyberstar.ECS;
 
 public interface IComponentAllocator
 {
+    IComponent this[Entity entity] { get; }
+    
     /// <summary>
     /// Whether or not the component allocator has a component for the given entity.
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
     bool HasComponentForEntity(Entity entity);
-
+    
     /// <summary>
     /// Serializes the component allocator to the given stream.
     /// </summary>
@@ -55,7 +57,9 @@ public interface IComponentAllocator<T> : IComponentAllocator where T : struct, 
 public class ComponentAllocator<T> : IComponentAllocator<T> where T : struct, IComponent
 {
     private const int InitialCapacity = 16;
-    
+
+    public IComponent this[Entity entity] => _components.Span[_entityToIndex[entity]];
+
     private readonly Dictionary<Entity, int> _entityToIndex;
     private readonly Dictionary<int, Entity> _indexToEntity;
     private Memory<T> _components;

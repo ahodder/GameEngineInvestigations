@@ -17,6 +17,7 @@ public class ShipBuilderScene : Scene
     private SpriteAtlas _spriteAtlas;
 
     private TexturePreviewView _selectedFramePreview;
+    private EntityBrowserView _entityBrowserView;
     private UiRenderer _uiRenderer;
     private EntityManager _entityManager;
 
@@ -24,6 +25,11 @@ public class ShipBuilderScene : Scene
 
     public ShipBuilderScene(ILogger logger, WindowData windowData, AssetManager assets) : base(logger, windowData, assets)
     {
+        _entityManager = new EntityManager(logger, 16);
+        _entityManager.AddSystem(new TextureFollowMouseSystem());
+        _entityManager.AddSystem(new SpriteRenderingSystem(assets));
+        _entityManager.AddSystem(new EntityOriginRendererSystem());
+        
         assets.TryLoadSpriteAtlas("dev_ships", out _spriteAtlas);
         var atlasView = new SpriteAtlasGridView(assets, _spriteAtlas);
         atlasView.ColumnSpacing = 10;
@@ -35,12 +41,8 @@ public class ShipBuilderScene : Scene
         atlasView.OnCellClick = SelectedShipFrame;
         atlasView.OnHover = (x, y) => true;
 
-        var spriteCollection = new LabeledExpanderView(assets, atlasView);
-        spriteCollection.Header.Text = "Ship Frames";
+        var spriteCollection = new LabeledExpanderView(assets, atlasView, "Ship Frames");
         spriteCollection.Header.OnClick = () => spriteCollection.IsExpanded = !spriteCollection.IsExpanded;
-
-        var currentBuiltShipComponents = new VerticalLayoutView(assets);
-        currentBuiltShipComponents.AddView(new LabelView(assets, assets.FontAtlas.DefaultFont, 18, 1, Color.BLACK, Color.GRAY));
 
         var absoluteLayout = new AbsoluteLayout(assets);
         absoluteLayout.AddView(spriteCollection, 0, 0, 400, windowData.Height);
@@ -48,22 +50,23 @@ public class ShipBuilderScene : Scene
         var entry = new EntryView(assets, assets.FontAtlas.DefaultFont, 18, .5f);
         entry.BackgroundColor = Color.GOLD;
         entry.RequestedSize = new Point(150, 20);
-        entry.Padding = new Thickness().Set(5);
+        entry.Padding = new Thickness(5);
         entry.Text = "Hello, ";
         absoluteLayout.AddView(entry, 400, 200, 150, 20);
         
         var entry2 = new EntryView(assets, assets.FontAtlas.DefaultFont, 18, .5f);
         entry2.BackgroundColor = Color.GOLD;
         entry2.RequestedSize = new Point(150, 20);
-        entry2.Padding = new Thickness().Set(5);
+        entry2.Padding = new Thickness(5);
         entry2.Text = "World";
         absoluteLayout.AddView(entry2, 400, 400, 150, 20);
 
+        _entityBrowserView = new EntityBrowserView(assets, _entityManager);
+        _entityBrowserView.BackgroundColor = Color.GRAY;
+        
+        absoluteLayout.AddView(_entityBrowserView, windowData.Width - 300, 0, 300, windowData.Height);
+
         _uiRenderer = new UiRenderer(absoluteLayout, 0, 0, windowData.Width, windowData.Height);
-        _entityManager = new EntityManager(logger, 16);
-        _entityManager.AddSystem(new TextureFollowMouseSystem());
-        _entityManager.AddSystem(new SpriteRenderingSystem(assets));
-        _entityManager.AddSystem(new EntityOriginRendererSystem());
     }
 
     private void SelectedShipFrame(Sprite selectedSprite)
@@ -79,6 +82,7 @@ public class ShipBuilderScene : Scene
         _entityManager.SetComponentFor(entity, new SpriteComponent(_spriteAtlas.AtlasName, selectedSprite.SpriteName, 0));
         _entityManager.SetComponentFor(entity, new TransformComponent());
         _activeEntity = entity;
+        _entityBrowserView.Entity = entity;
     }
 
     public override void PerformTick(FrameTiming frameTiming)

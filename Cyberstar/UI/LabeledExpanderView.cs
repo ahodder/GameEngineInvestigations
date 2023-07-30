@@ -1,7 +1,6 @@
 using System.Drawing;
 using Cyberstar.AssetManagement;
 using Cyberstar.Core;
-using Color = Raylib_cs.Color;
 
 namespace Cyberstar.UI;
 
@@ -19,14 +18,13 @@ public class LabeledExpanderView : ViewBase
         set => ExpandedView.IsEnabled = value;
     }
 
-    public LabeledExpanderView(AssetManager assetManager, IView expandedView) : base(assetManager)
+    public LabeledExpanderView(AssetManager assetManager, IView expandedView, ReadOnlySpan<char> text) : base(assetManager)
     {
         Header = new ButtonView(assetManager);
         Header.IsEnabled = true;
         Header.Padding = new Thickness().Set(15);
         Header.Margin = new Thickness().Set(15);
-        Header.Text = "Unlabeled Header";
-        Header.BackgroundColor = Color.GRAY;
+        Header.Text = text;
         Header.FontSize = 18;
 
         ExpandedView = expandedView;
@@ -34,21 +32,21 @@ public class LabeledExpanderView : ViewBase
 
     protected override Point DoMeasure(int x, int y, int width, int height)
     {
-        var totalWidth = int.MaxValue;
-        var totalHeight = y;
+        var maxWidth = 0;
+        var offset = 0;
         
         Header.Measure(x, y, width, height);
-        totalWidth = Math.Min(width, Header.MeasuredSize.X);
-        totalHeight += Header.Bounds.Height;
+        maxWidth = Math.Max(Header.Bounds.Width, maxWidth);
+        offset += Header.Bounds.Height;
 
         if (ExpandedView.IsEnabled)
         {
-            ExpandedView.Measure(x, totalHeight, width, height);
-            totalWidth = Math.Min(width, ExpandedView.MeasuredSize.X);
-            totalHeight += ExpandedView.Bounds.Height;
+            ExpandedView.Measure(x, y + offset, width, height);
+            maxWidth = Math.Min(maxWidth, ExpandedView.Bounds.Width);
+            offset += ExpandedView.Bounds.Height;
         }
 
-        return new Point(totalWidth, totalHeight);
+        return new Point(maxWidth, offset);
     }
 
     protected override void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)

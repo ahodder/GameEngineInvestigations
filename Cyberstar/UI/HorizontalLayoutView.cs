@@ -5,28 +5,28 @@ using Raylib_cs;
 
 namespace Cyberstar.UI;
 
-public class VerticalLayoutView : ViewParent
+public class HorizontalLayoutView : ViewParent
 {
     public int ViewSpacing { get; set; }
 
-    public VerticalLayoutView(AssetManager assetManager) : base(assetManager)
+    public HorizontalLayoutView(AssetManager assetManager) : base(assetManager)
     {
     }
 
     protected override Point DoMeasure(int x, int y, int width, int height)
     {
         var totalWidth = 0;
-        var totalHeight = y;
+        var maxHeight = 0;
         
         for (var i = 0; i < Children.Count; i++)
         {
             var child = Children[i];
-            child.Measure(x, totalHeight, width, height);
-            totalHeight += child.Bounds.Height + ViewSpacing;
-            totalWidth = Math.Max(child.Bounds.Width, totalWidth);
+            child.Measure(x + totalWidth, y, width, height);
+            totalWidth += child.Bounds.Width + ViewSpacing;
+            maxHeight = Math.Max(child.Bounds.Height, maxHeight);
         }
 
-        return new Point(totalWidth, totalHeight);
+        return new Point(totalWidth, maxHeight);
     }
 
     protected override void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)
