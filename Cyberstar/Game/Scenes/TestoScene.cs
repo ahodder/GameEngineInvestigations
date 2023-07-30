@@ -1,25 +1,29 @@
 using System.Numerics;
-using Cyberstar.AssetManagement;
 using Cyberstar.Core;
 using Cyberstar.ECS;
+using Cyberstar.Engine;
+using Cyberstar.Engine.Logging;
+using Cyberstar.Engine.Scenes;
 using Cyberstar.Game.Components;
 using Cyberstar.Game.Systems;
-using Cyberstar.Logging;
 using Cyberstar.Strings;
 using Cyberstar.UI;
 using Raylib_cs;
 
-namespace Cyberstar.Scenes;
+namespace Cyberstar.Game.Scenes;
 
 public class TestoScene : Scene
 {
+    public EntityManager EntityManager { get; }
+    
     private UiRenderer _uiRenderer;
     private LabelView _fpsCounter;
     
     private Entity _player;
     
-    public TestoScene(ILogger logger, WindowData windowData, AssetManager assets) : base(logger, windowData, assets)
+    public TestoScene(IEngine engine) : base(engine)
     {
+        EntityManager = new EntityManager(engine.Logger, 128); 
         CreateUi();
         CreateWorld();
     }
@@ -56,14 +60,14 @@ public class TestoScene : Scene
 
     public void CreateUi()
     {
-        _fpsCounter = new LabelView(Assets);
+        _fpsCounter = new LabelView(Engine.AssetManager);
         _fpsCounter.FontSize = 26;
         _fpsCounter.TextColor = Color.GOLD;
         _fpsCounter.BackgroundColor = Color.BLUE;
         _fpsCounter.Padding = new Thickness().Set(10);
         _fpsCounter.Text = "Something";
         
-        var layout = new VerticalLayoutView(Assets);
+        var layout = new VerticalLayoutView(Engine.AssetManager);
         layout.AddView(_fpsCounter);
 
         _uiRenderer = new UiRenderer(layout, 0, 0, 1000, 1000);
@@ -71,12 +75,12 @@ public class TestoScene : Scene
 
     public void CreateWorld()
     {
-        Assets.TryLoadSpriteAtlas("dev_ships", out var atlas);
+        Engine.AssetManager.TryLoadSpriteAtlas("dev_ships", out var atlas);
         
         // Register Systems
         EntityManager.AddSystem(new MainPlayerShipInputSystem());
         EntityManager.AddSystem(new ShipMovementSystem());
-        EntityManager.AddSystem(new SpriteRenderingSystem(Assets));
+        EntityManager.AddSystem(new SpriteRenderingSystem(Engine.AssetManager));
         
         _player = EntityManager.CreateEntity();
         EntityManager.SetComponentsFor(_player,

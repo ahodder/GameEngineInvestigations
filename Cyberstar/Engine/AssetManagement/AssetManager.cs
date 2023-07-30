@@ -1,30 +1,33 @@
-using Cyberstar.Logging;
+using Cyberstar.Engine.Logging;
 using Cyberstar.Sprites;
 using Newtonsoft.Json;
 using Raylib_cs;
 
-namespace Cyberstar.AssetManagement;
+namespace Cyberstar.Engine.AssetManagement;
 
 public class AssetManager
 {
     private const string FontDirectory = "fonts";
     private const string SpriteAtlasDirectory = "textures/sprite_atlases";
     private const string TexturesDirectory = "textures";
+    private const string TracksDirectory = "audio/tracks";
+    private const string SoundByteDirectory = "audio/sound_bytes";
     
     public FontAtlas FontAtlas { get; }
 
     private readonly ILogger _logger;
     private string _rootDirectory;
-    
-    private Dictionary<string, SpriteAtlas> _loadedAtlases;
+
+    private readonly Dictionary<string, SpriteAtlas> _loadedAtlases = new();
+    private readonly Dictionary<string, Music> _loadedMusic = new();
 
 
     public AssetManager(ILogger logger, string rootDirectory)
     {
         _logger = logger;
         _rootDirectory = rootDirectory;
-        FontAtlas = new FontAtlas("assets/fonts/NugoSansLight.ttf");
-        _loadedAtlases = new Dictionary<string, SpriteAtlas>();
+        var fontPath = Path.Join(Directory.GetCurrentDirectory(), _rootDirectory, FontDirectory, "NugoSansLight.ttf");
+        FontAtlas = new FontAtlas(fontPath);
     }
 
     public bool TryLoadSpriteAtlas(string assetFileName, out SpriteAtlas? spriteAtlas)
@@ -107,5 +110,23 @@ public class AssetManager
 
         spriteAtlas = default;
         return false;
+    }
+
+    public bool TryGetAudioTrack(string trackName, out Music music)
+    {
+        if (_loadedMusic.TryGetValue(trackName, out music))
+            return true;
+        
+        var atlasDirectory = Path.Join(Directory.GetCurrentDirectory(), _rootDirectory, TracksDirectory);
+        var audioPath = Path.Join(atlasDirectory, trackName + ".mp3");
+        if (!Path.Exists(audioPath))
+        {
+            music = default;
+            return false;
+        }
+
+        var stream = Raylib.LoadMusicStream(audioPath);
+        music = stream;
+        return true;
     }
 }

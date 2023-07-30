@@ -1,5 +1,5 @@
 using Cyberstar.ECS;
-using Cyberstar.Logging;
+using Cyberstar.Engine.Logging;
 using Moq;
 
 namespace Cyberstar.Tests.ECS;

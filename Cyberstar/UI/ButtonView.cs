@@ -1,4 +1,4 @@
-using Cyberstar.AssetManagement;
+using Cyberstar.Engine.AssetManagement;
 
 namespace Cyberstar.UI;
 

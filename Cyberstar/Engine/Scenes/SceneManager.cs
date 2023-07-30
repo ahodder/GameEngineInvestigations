@@ -1,25 +1,26 @@
-using Cyberstar.AssetManagement;
 using Cyberstar.Core;
-using Cyberstar.Logging;
 
-namespace Cyberstar.Scenes;
+namespace Cyberstar.Engine.Scenes;
 
 public class SceneManager : Scene
 {
     public bool ApplicationCloseRequested { get; set; }
-    public Scene ActiveScene;
+    public Scene? ActiveScene;
     
-    public SceneManager(ILogger logger, WindowData windowData, AssetManager assets) : base(logger, windowData, assets)
+    public SceneManager(IEngine engine) : base(engine)
     {
     }
 
     public void BeginLoadActiveScene(Scene scene)
     {
+        if (ActiveScene != null)
+            ActiveScene.OnSceneUnloaded();
         ActiveScene = scene;
+        ActiveScene.OnSceneLoaded();
     }
 
     public override void PerformTick(FrameTiming frameTiming)
     {
-        ActiveScene.PerformTick(frameTiming);
+        ActiveScene!.PerformTick(frameTiming);
     }
 }

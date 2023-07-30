@@ -1,7 +1,8 @@
-﻿using Cyberstar.AssetManagement;
-using Cyberstar.Core;
-using Cyberstar.Logging;
-using Cyberstar.Scenes;
+﻿using Cyberstar.Core;
+using Cyberstar.Engine;
+using Cyberstar.Engine.AssetManagement;
+using Cyberstar.Engine.Logging;
+using Cyberstar.Game.Scenes;
 using Raylib_cs;
 
 var windowData = new WindowData("Cyberstar", 1200, 800);
@@ -9,20 +10,21 @@ Raylib.InitWindow(windowData.Width, windowData.Height, windowData.WindowName);
 
 var logger = Log.Instance = new ConsoleLogger();
 var assets = new AssetManager(logger, "assets");
-var sceneManager = new SceneManager(logger,windowData, assets);
+var engine = new SimpleEngine(logger, assets, windowData);
 
-// sceneManager.BeginLoadActiveScene(new MainMenuScene(sceneManager, logger, windowData, assets));
-sceneManager.BeginLoadActiveScene(new ShipBuilderScene(logger, windowData, assets));
+engine.SceneManager.BeginLoadActiveScene(new MainMenuScene(engine));
 
 FrameTiming ft = new FrameTiming();
-while (!Raylib.WindowShouldClose() && !sceneManager.ApplicationCloseRequested)
+while (!Raylib.WindowShouldClose() && !engine.SceneManager.ApplicationCloseRequested)
 {
     ft.Fps = Raylib.GetFPS();
     ft.DeltaTime = Raylib.GetFrameTime();
     Raylib.BeginDrawing();
     Raylib.ClearBackground(Color.BLACK);
     
-    sceneManager.PerformTick(ft);
+    engine.AudioManager.PerformTick(ft);
+    
+    engine.SceneManager.PerformTick(ft);
     
     Raylib.EndDrawing();
 }

@@ -1,4 +1,4 @@
-namespace Cyberstar.Logging;
+namespace Cyberstar.Engine.Logging;
 
 public class ConsoleLogger : ILogger
 {

@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Cyberstar.Logging;
+namespace Cyberstar.Engine.Logging;
 
 public static class Log
 {

@@ -1,27 +1,28 @@
-using Cyberstar.AssetManagement;
 using Cyberstar.Core;
-using Cyberstar.Logging;
+using Cyberstar.Engine;
+using Cyberstar.Engine.Scenes;
 using Cyberstar.UI;
 using Raylib_cs;
 
-namespace Cyberstar.Scenes;
+namespace Cyberstar.Game.Scenes;
 
 public class MainMenuScene : Scene
 {
-    private SceneManager _sceneManager;
     private UiRenderer _uiRenderer;
 
-    public MainMenuScene(SceneManager sceneManager, ILogger logger, WindowData windowData, AssetManager assets) : base(logger, windowData, assets)
+    public MainMenuScene(IEngine engine) : base(engine)
     {
-        var layout = new VerticalLayoutView(assets);
+        var layout = new VerticalLayoutView(engine.AssetManager);
         layout.AddView(CreateButton("Continue", OnContinueClicked));
         layout.AddView(CreateButton("New Game", OnNewGameClicked));
         layout.AddView(CreateButton("Load Game", OnLoadGameClicked));
         layout.AddView(CreateButton("Settings", OnSettingsClicked));
         layout.AddView(CreateButton("Exit", OnExitClicked));
+        layout.AddView(CreateButton("Entity Editor", OnEntityEditorClicked));
 
-        _sceneManager = sceneManager;
         _uiRenderer = new UiRenderer(layout, 0, 0, 500, 500);
+        
+        engine.AudioManager.PlayMusic("cyberpunk", true);
     }
     
     public override void PerformTick(FrameTiming frameTiming)
@@ -29,7 +30,11 @@ public class MainMenuScene : Scene
         RenderUi(in frameTiming);
     }
 
-    
+    public override void OnSceneUnloaded()
+    {
+        Engine.AudioManager.StopMusic();
+    }
+
     public void RenderUi(in FrameTiming frameTiming) 
     {
         _uiRenderer.Render(in frameTiming);
@@ -42,7 +47,7 @@ public class MainMenuScene : Scene
     
     public void OnNewGameClicked()
     {
-        _sceneManager.BeginLoadActiveScene(new TestoScene(_logger, WindowData, Assets));
+        Engine.SceneManager.BeginLoadActiveScene(new TestoScene(Engine));
     }
     
     public void OnLoadGameClicked()
@@ -57,12 +62,17 @@ public class MainMenuScene : Scene
 
     public void OnExitClicked()
     {
-        _sceneManager.ApplicationCloseRequested = true;
+        Engine.SceneManager.ApplicationCloseRequested = true;
+    }
+
+    public void OnEntityEditorClicked()
+    {
+        Engine.SceneManager.BeginLoadActiveScene(new ShipBuilderScene(Engine));
     }
 
     private ButtonView CreateButton(string text, Action handler)
     {
-        return new ButtonView(Assets)
+        return new ButtonView(Engine.AssetManager)
         {
             Text = text,
             FontSize = 24, 
