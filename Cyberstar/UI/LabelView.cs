@@ -56,13 +56,13 @@ public class LabelView : ViewBase
         _charCount = text.Length;
     }
     
-    protected override unsafe Point DoMeasure(int x, int y, int width, int height)
+    protected override unsafe Point MeasureSelf(int x, int y, int width, int height)
     {
         var bytes = stackalloc sbyte[_charCount];
         for (var i = 0; i < _charCount; i++)
             bytes[i] = (sbyte)_charBuffer[i];
         var vec = Raylib.MeasureTextEx(Font, bytes, FontSize, FontSpacing);
-        
+
         return new Point((int)vec.X, (int)vec.Y);
     }
 

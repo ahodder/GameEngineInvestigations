@@ -15,7 +15,7 @@ public class UiRenderer
     public UiRenderer(IView rootView, int x, int y, int width, int height)
     {
         RootView = rootView;
-        RootView.Measure(x, y, width, height);
+        RootView.MeasureAndLayout(x, y, width, height);
         _x = x;
         _y = y;
         _width = width;
@@ -25,7 +25,7 @@ public class UiRenderer
     public void Render(in FrameTiming frameTiming)
     {
         if (RootView.NeedsRemeasure)
-            RootView.Measure(_x, _y, _width, _height);
+            RootView.MeasureAndLayout(_x, _y, _width, _height);
 
         var mousePosition = Raylib.GetMousePosition();
         var inputData = new InputData((int)mousePosition.X, (int)mousePosition.Y);

@@ -74,7 +74,7 @@ public interface IView
     /// <param name="y">The offset within the real space that the view is measured against.</param>
     /// <param name="width">The maximum width of the view.</param>
     /// <param name="height">The maximum height of the view.</param>
-    void Measure(int x, int y, int width, int height);
+    void MeasureAndLayout(int x, int y, int width, int height);
 
     /// <summary>
     /// Renders the view to the given dimensions.

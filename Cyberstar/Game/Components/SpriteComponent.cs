@@ -1,4 +1,7 @@
 using Cyberstar.ECS;
+using Cyberstar.Engine.AssetManagement;
+using Cyberstar.UI;
+using Cyberstar.UI.EcsRendering.ComponentRendering;
 
 namespace Cyberstar.Game.Components;
 
@@ -27,5 +30,14 @@ public struct SpriteComponent : IComponent
         SpriteAtlas = reader.ReadString();
         SpriteAnimationPath = reader.ReadString();
         SpriteCurrentFrame = reader.ReadInt32();
+    }
+    
+    public bool TryCreateDebugView(AssetManager assetManager, 
+        Entity entity,
+        EntityManager entityManager, 
+        out ViewBase outView)
+    {
+        outView = new ComponentRenderer<SpriteComponent>(assetManager, entity, entityManager);
+        return true;
     }
 }

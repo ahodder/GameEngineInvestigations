@@ -11,7 +11,7 @@ public class AbsoluteLayout : ViewParent
     {
     }
 
-    protected override Point DoMeasure(int x, int y, int width, int height)
+    protected override Point MeasureSelf(int x, int y, int width, int height)
     {
         var totalWidth = 0;
         var totalHeight = 0;
@@ -19,7 +19,7 @@ public class AbsoluteLayout : ViewParent
         for (var i = 0; i < Children.Count; i++)
         {
             var child = Children[i];
-            child.Measure(child.Bounds.X, child.Bounds.Y, child.Bounds.Width, child.Bounds.Height);
+            child.MeasureAndLayout(child.Bounds.X, child.Bounds.Y, child.Bounds.Width, child.Bounds.Height);
             totalWidth = Math.Max(totalWidth, child.Bounds.X + child.Bounds.Width);
             totalHeight = Math.Max(totalHeight, child.Bounds.Y + child.Bounds.Height);
         }
@@ -38,14 +38,14 @@ public class AbsoluteLayout : ViewParent
 
     public void AddView(IView child, int x, int y)
     {
-        child.Measure(x, y, -1, -1);
+        child.MeasureAndLayout(x, y, -1, -1);
         AddView(child, x, y, child.MeasuredSize.X, child.MeasuredSize.Y);
     }
 
     public void AddView(IView child, int x, int y, int width, int height)
     {
         child.RequestedSize = new Point(width, height);
-        child.Measure(x, y, width, height);
+        child.MeasureAndLayout(x, y, width, height);
         AddChild(child);
     }
 

@@ -14,6 +14,18 @@ public abstract class ViewBase : IView
     public bool IsEnabled { get; set; }
     public ViewParent? Parent { get; set; }
 
+    public Rectangle Bounds { get; private set; }
+    public Rectangle PaddedBounds { get; private set; }
+    public Rectangle ContentBounds { get; private set; }
+    public Thickness Margin { get; set; }
+    public Thickness Padding { get; set; }
+    public Point MeasuredSize { get; protected set; }
+    public Point RequestedSize { get; set; }
+    public Color? BackgroundColor { get; set; }
+    
+    public EAxisMeasure VerticalMeasure { get; set; }
+    public EAxisMeasure HorizontalMeasure { get; set; }
+    
     public bool NeedsRemeasure
     {
         get => _needsRemeasure;
@@ -24,14 +36,6 @@ public abstract class ViewBase : IView
                 Parent.NeedsRemeasure = value;
         }
     }
-    public Rectangle Bounds { get; private set; }
-    public Rectangle PaddedBounds { get; private set; }
-    public Rectangle ContentBounds { get; private set; }
-    public Thickness Margin { get; set; }
-    public Thickness Padding { get; set; }
-    public Point MeasuredSize { get; protected set; }
-    public Point RequestedSize { get; set; }
-    public Color? BackgroundColor { get; set; }
     
     protected AssetManager AssetManager { get; }
 
@@ -43,13 +47,36 @@ public abstract class ViewBase : IView
         AssetManager = assetManager;
     }
 
-    public void Measure(int x, int y, int width, int height)
+    public void MeasureAndLayout(int x, int y, int width, int height)
     {
         NeedsRemeasure = false;
 
-        MeasuredSize = DoMeasure(x, y, width, height);
-        if (RequestedSize != Point.Empty)
-            MeasuredSize = RequestedSize;
+        var measuredSize = MeasureSelf(x, y, width, height); 
+
+        switch (HorizontalMeasure)
+        {
+            case EAxisMeasure.Exact:
+                measuredSize.X = RequestedSize.X;
+                break;
+            
+            case EAxisMeasure.FillParent:
+                measuredSize.X = width;
+                break;
+        }
+
+        switch (VerticalMeasure)
+        {
+            case EAxisMeasure.Exact:
+                measuredSize.Y = RequestedSize.Y;
+                break;
+            
+            case EAxisMeasure.FillParent:
+                measuredSize.Y = height;
+                break;
+        }
+
+
+        MeasuredSize = measuredSize;
         
         Bounds = new Rectangle(x, y, Margin.Width + Padding.Width + MeasuredSize.X, Margin.Height + Padding.Height + MeasuredSize.Y);
         PaddedBounds = new Rectangle(Bounds.Left + Margin.Left, Bounds.Top + Margin.Top, Bounds.Width - Margin.Width, Bounds.Height - Margin.Height);
@@ -57,14 +84,14 @@ public abstract class ViewBase : IView
     }
 
     /// <summary>
-    /// Measures the contents of the view.
+    /// Measures the minimum space required for the view to be rendered.
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <param name="width"></param>
     /// <param name="height"></param>
     /// <returns></returns>
-    protected abstract Point DoMeasure(int x, int y, int width, int height);
+    protected abstract Point MeasureSelf(int x, int y, int width, int height);
 
     public void Render(in FrameTiming frameTiming, in InputData inputData)
     {

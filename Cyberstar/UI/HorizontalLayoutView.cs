@@ -13,7 +13,7 @@ public class HorizontalLayoutView : ViewParent
     {
     }
 
-    protected override Point DoMeasure(int x, int y, int width, int height)
+    protected override Point MeasureSelf(int x, int y, int width, int height)
     {
         var totalWidth = 0;
         var maxHeight = 0;
@@ -21,21 +21,12 @@ public class HorizontalLayoutView : ViewParent
         for (var i = 0; i < Children.Count; i++)
         {
             var child = Children[i];
-            child.Measure(x + totalWidth, y, width, height);
+            child.MeasureAndLayout(x + totalWidth, y, width, height);
             totalWidth += child.Bounds.Width + ViewSpacing;
             maxHeight = Math.Max(child.Bounds.Height, maxHeight);
         }
 
         return new Point(totalWidth, maxHeight);
-    }
-
-    protected override void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)
-    {
-        for (var i = 0; i < Children.Count; i++)
-        {
-            var child = Children[i];
-            child.Render(in frameTiming, in inputData);
-        }
     }
 
     public void AddView(IView view)

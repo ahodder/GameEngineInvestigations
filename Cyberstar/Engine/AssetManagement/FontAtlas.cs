@@ -25,6 +25,7 @@ public class FontAtlas
         DefaultFont = Raylib.LoadFont(defaultFontPath);
         _pathToFontMapping = new Dictionary<string, FontId>();
         _fontMapping = new Dictionary<FontId, Font>();
+        Raylib.SetTextureFilter(DefaultFont.texture, TextureFilter.TEXTURE_FILTER_POINT);
     }
 
     public bool TryLoadFont(string fontPath, out FontId fontId)
@@ -39,6 +40,7 @@ public class FontAtlas
             fontId = new FontId(++_count);
             _pathToFontMapping[fontPath] = fontId;
             _fontMapping[fontId] = font;
+            Raylib.SetTextureFilter(font.texture, TextureFilter.TEXTURE_FILTER_POINT);
             return true;
         }
         catch

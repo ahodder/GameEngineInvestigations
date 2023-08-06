@@ -30,18 +30,18 @@ public class LabeledExpanderView : ViewBase
         ExpandedView = expandedView;
     }
 
-    protected override Point DoMeasure(int x, int y, int width, int height)
+    protected override Point MeasureSelf(int x, int y, int width, int height)
     {
         var maxWidth = 0;
         var offset = 0;
         
-        Header.Measure(x, y, width, height);
+        Header.MeasureAndLayout(x, y, width, height);
         maxWidth = Math.Max(Header.Bounds.Width, maxWidth);
         offset += Header.Bounds.Height;
 
         if (ExpandedView.IsEnabled)
         {
-            ExpandedView.Measure(x, y + offset, width, height);
+            ExpandedView.MeasureAndLayout(x, y + offset, width, height);
             maxWidth = Math.Min(maxWidth, ExpandedView.Bounds.Width);
             offset += ExpandedView.Bounds.Height;
         }

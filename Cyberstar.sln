@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyberstar", "Cyberstar\Cybe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyberstar.Tests", "Cyberstar.Tests\Cyberstar.Tests.csproj", "{0C0FCEF3-C062-4CB0-B806-D692E9E92F39}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyberstar.Benchmarking", "Cyberstar.Benchmarking\Cyberstar.Benchmarking.csproj", "{2D67F0B2-8550-4F4C-8725-9AEB087BCAC8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{0C0FCEF3-C062-4CB0-B806-D692E9E92F39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C0FCEF3-C062-4CB0-B806-D692E9E92F39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C0FCEF3-C062-4CB0-B806-D692E9E92F39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D67F0B2-8550-4F4C-8725-9AEB087BCAC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D67F0B2-8550-4F4C-8725-9AEB087BCAC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D67F0B2-8550-4F4C-8725-9AEB087BCAC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D67F0B2-8550-4F4C-8725-9AEB087BCAC8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

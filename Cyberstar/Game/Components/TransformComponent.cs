@@ -1,7 +1,10 @@
 using System.Numerics;
 using Cyberstar.ECS;
+using Cyberstar.Engine.AssetManagement;
 using Cyberstar.Extensions.IO;
 using Cyberstar.Maths;
+using Cyberstar.UI;
+using Cyberstar.UI.EcsRendering.ComponentRendering;
 
 namespace Cyberstar.Game.Components;
 
@@ -68,6 +71,15 @@ public struct TransformComponent : IComponent
         Position = reader.ReadVector2();
         Scale = reader.ReadVector2();
         RotationRadians = reader.ReadSingle();
+    }
+    
+    public bool TryCreateDebugView(AssetManager assetManager, 
+        Entity entity,
+        EntityManager entityManager, 
+        out ViewBase outView)
+    {
+        outView = new ComponentRenderer<TransformComponent>(assetManager, entity, entityManager);
+        return true;
     }
 
     public static TransformComponent FromTranslation(Vector2 translation)

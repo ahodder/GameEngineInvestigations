@@ -22,7 +22,7 @@ public class MainMenuScene : Scene
 
         _uiRenderer = new UiRenderer(layout, 0, 0, 500, 500);
         
-        engine.AudioManager.PlayMusic("cyberpunk", true);
+        // engine.AudioManager.PlayMusic("cyberpunk", true);
     }
     
     public override void PerformTick(FrameTiming frameTiming)

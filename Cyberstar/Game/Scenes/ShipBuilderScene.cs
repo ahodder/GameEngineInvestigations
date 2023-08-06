@@ -1,4 +1,3 @@
-using System.Drawing;
 using Cyberstar.Core;
 using Cyberstar.ECS;
 using Cyberstar.Engine;
@@ -47,24 +46,11 @@ public class ShipBuilderScene : Scene
         var absoluteLayout = new AbsoluteLayout(Engine.AssetManager);
         absoluteLayout.AddView(spriteCollection, 0, 0, 400, Engine.WindowData.Height);
 
-        var entry = new EntryView(Engine.AssetManager, Engine.AssetManager.FontAtlas.DefaultFont, 18, .5f);
-        entry.BackgroundColor = Color.GOLD;
-        entry.RequestedSize = new Point(150, 20);
-        entry.Padding = new Thickness(5);
-        entry.Text = "Hello, ";
-        absoluteLayout.AddView(entry, 400, 200, 150, 20);
-        
-        var entry2 = new EntryView(Engine.AssetManager, Engine.AssetManager.FontAtlas.DefaultFont, 18, .5f);
-        entry2.BackgroundColor = Color.GOLD;
-        entry2.RequestedSize = new Point(150, 20);
-        entry2.Padding = new Thickness(5);
-        entry2.Text = "World";
-        absoluteLayout.AddView(entry2, 400, 400, 150, 20);
-
         _entityBrowserView = new EntityBrowserView(Engine.AssetManager, _entityManager);
         _entityBrowserView.BackgroundColor = Color.GRAY;
+        _entityBrowserView.HorizontalMeasure = EAxisMeasure.FillParent;
         
-        absoluteLayout.AddView(_entityBrowserView, engine.WindowData.Width - 300, 0, 300, engine.WindowData.Height);
+        absoluteLayout.AddView(_entityBrowserView, engine.WindowData.Width - 300, 0, 0, engine.WindowData.Height);
 
         _uiRenderer = new UiRenderer(absoluteLayout, 0, 0, engine.WindowData.Width, engine.WindowData.Height);
     }

@@ -13,29 +13,20 @@ public class VerticalLayoutView : ViewParent
     {
     }
 
-    protected override Point DoMeasure(int x, int y, int width, int height)
+    protected override Point MeasureSelf(int x, int y, int width, int height)
     {
         var totalWidth = 0;
-        var totalHeight = y;
+        var totalHeight = 0;
         
         for (var i = 0; i < Children.Count; i++)
         {
             var child = Children[i];
-            child.Measure(x, totalHeight, width, height);
+            child.MeasureAndLayout(x, y + totalHeight, width, height);
             totalHeight += child.Bounds.Height + ViewSpacing;
             totalWidth = Math.Max(child.Bounds.Width, totalWidth);
         }
 
         return new Point(totalWidth, totalHeight);
-    }
-
-    protected override void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)
-    {
-        for (var i = 0; i < Children.Count; i++)
-        {
-            var child = Children[i];
-            child.Render(in frameTiming, in inputData);
-        }
     }
 
     public void AddView(IView view)

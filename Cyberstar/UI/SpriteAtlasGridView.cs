@@ -32,7 +32,7 @@ public class SpriteAtlasGridView : ViewBase
         Keys = SpriteAtlas.Sprites.Keys.ToArray();
     }
 
-    protected override Point DoMeasure(int x, int y, int width, int height)
+    protected override Point MeasureSelf(int x, int y, int width, int height)
     {
         var w = Columns * (ColumnSpacing * 2 + CellWidth);
         var h = Rows * (RowSpacing * 2 + CellHeight);

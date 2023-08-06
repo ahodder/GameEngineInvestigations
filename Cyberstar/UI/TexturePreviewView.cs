@@ -27,7 +27,7 @@ public class TexturePreviewView : ViewBase
         RequestedSize = new Point(width, height);
     }
 
-    protected override Point DoMeasure(int x, int y, int width, int height)
+    protected override Point MeasureSelf(int x, int y, int width, int height)
     {
         if (RequestedSize != Point.Empty)
             return RequestedSize;

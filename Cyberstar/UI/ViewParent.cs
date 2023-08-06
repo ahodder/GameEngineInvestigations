@@ -62,6 +62,15 @@ public abstract class ViewParent : ViewBase
         return false;
     }
 
+    protected override void DoRenderContent(in FrameTiming frameTiming, in InputData inputData)
+    {
+        for (var i = 0; i < Children.Count; i++)
+        {
+            var child = Children[i];
+            child.Render(in frameTiming, in inputData);
+        }
+    }
+
     public override void HandleKeyboardKeys(in FrameTiming frameTiming, Span<KeyboardKey> keys)
     {
         for (var i = 0; i < Children.Count; i++)

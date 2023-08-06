@@ -43,21 +43,6 @@ public class EntryView : ViewBase
     private float _keyRepeatDelay;
     
     public EntryView(AssetManager assetManager,
-        Font font,
-        int fontSize = 12,
-        float caretFlashSpeedSeconds = 0.5f) : base(assetManager)
-    {
-        Font = font;
-        FontSize = fontSize;
-        FontSpacing = 1;
-        TextColor = Color.BLACK;
-        CaretFlashSpeedSeconds = caretFlashSpeedSeconds;
-        _charBuffer = new char[64];
-        CaretColor = Color.BLACK;
-        _keyRepeatDelay = KeyRepeatDelay;
-    }
-
-    public EntryView(AssetManager assetManager,
         Font? font = null,
         int fontSize = 18,
         float fontSpacing = 1f,
@@ -74,12 +59,14 @@ public class EntryView : ViewBase
         TextColor = Color.WHITE;
     } 
 
-    protected override unsafe Point DoMeasure(int x, int y, int width, int height)
+    protected override unsafe Point MeasureSelf(int x, int y, int width, int height)
     {
         var bytes = stackalloc sbyte[_charCount];
         for (var i = 0; i < _charCount; i++)
             bytes[i] = (sbyte)_charBuffer[i];
         var vec = Raylib.MeasureTextEx(Font, bytes, FontSize, FontSpacing);
+        // So, if the test is null or empty, we will have a height of 0. Let's just set the height to the font size
+        vec.Y = FontSize;
         return new Point((int)vec.X, (int)vec.Y);
     }
 
@@ -107,7 +94,8 @@ public class EntryView : ViewBase
         vec = Raylib.MeasureTextEx(Font, bytes, FontSize, FontSpacing);
         
         Raylib.DrawRectangleLines(ContentBounds.X, ContentBounds.Y, (int)vec.X, (int)vec.Y, Color.GREEN);
-        Raylib.DrawTextEx(Font, bytes, new Vector2(ContentBounds.X, ContentBounds.Y), FontSize, FontSpacing, TextColor);
+        if (_charCount > 0)
+            Raylib.DrawTextEx(Font, bytes, new Vector2(ContentBounds.X, ContentBounds.Y), FontSize, FontSpacing, TextColor);
     }
     
     public override void HandleKeyboardKeys(in FrameTiming frameTiming, Span<KeyboardKey> keys)
@@ -163,7 +151,7 @@ public class EntryView : ViewBase
         _timeSinceLastKeyRepeat += frameTiming.DeltaTime;
     }
 
-    public override unsafe bool WillHandleMouseClick(int mouseX, int mouseY)
+    public override bool WillHandleMouseClick(int mouseX, int mouseY)
     {
         if (PaddedBounds.Contains(mouseX, mouseY))
         {
@@ -173,6 +161,14 @@ public class EntryView : ViewBase
 
         HasFocus = false;
         return false;
+    }
+
+    public void SetText(ReadOnlySpan<char> text)
+    {
+        EnsureCapacity(text.Length + 1);
+        text.CopyTo(_charBuffer);
+        _charBuffer[text.Length] = '\0';
+        _charCount = text.Length;
     }
 
     public void InsertChar(char insertedChar)
