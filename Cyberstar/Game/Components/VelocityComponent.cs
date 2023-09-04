@@ -1,9 +1,6 @@
 using System.Numerics;
 using Cyberstar.ECS;
-using Cyberstar.Engine.AssetManagement;
 using Cyberstar.Extensions.IO;
-using Cyberstar.UI;
-using Cyberstar.UI.EcsRendering.ComponentRendering;
 
 namespace Cyberstar.Game.Components;
 
@@ -25,14 +22,5 @@ public struct VelocityComponent : IComponent
         Velocity = reader.ReadVector2();
         RotationalVelocity = reader.ReadSingle();
         Drag = reader.ReadSingle();
-    }
-    
-    public bool TryCreateDebugView(AssetManager assetManager, 
-        Entity entity,
-        EntityManager entityManager, 
-        out ViewBase outView)
-    {
-        outView = new ComponentRenderer<VelocityComponent>(assetManager, entity, entityManager);
-        return true;
     }
 }

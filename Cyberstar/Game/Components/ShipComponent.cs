@@ -1,7 +1,4 @@
 using Cyberstar.ECS;
-using Cyberstar.Engine.AssetManagement;
-using Cyberstar.UI;
-using Cyberstar.UI.EcsRendering.ComponentRendering;
 
 namespace Cyberstar.Game.Components;
 
@@ -26,14 +23,5 @@ public struct ShipComponent : IComponent
         MaximumVelocity = reader.ReadSingle();
         RotationalAcceleration = reader.ReadSingle();
         MaximumRotationalVelocity = reader.ReadSingle();
-    }
-    
-    public bool TryCreateDebugView(AssetManager assetManager, 
-        Entity entity,
-        EntityManager entityManager, 
-        out ViewBase outView)
-    {
-        outView = new ComponentRenderer<ShipComponent>(assetManager, entity, entityManager);
-        return true;
     }
 }

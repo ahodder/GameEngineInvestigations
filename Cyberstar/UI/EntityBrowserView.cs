@@ -46,10 +46,10 @@ public class EntityBrowserView : VerticalLayoutView
 
         foreach (var component in _components)
         {
-            if (component.TryCreateDebugView(AssetManager, Entity, EntityManager, out var view))
-            {
-                AddChild(view);
-            }
+            // if (component.TryCreateDebugView(AssetManager, Entity, EntityManager, out var view))
+            // {
+            //     AddChild(view);
+            // }
         }
 
         NeedsRemeasure = true;

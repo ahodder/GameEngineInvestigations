@@ -1,6 +1,6 @@
 namespace Cyberstar.ECS;
 
-public readonly struct Entity
+public readonly struct Entity 
 {
     public readonly int Id;
     public readonly int Generation;
