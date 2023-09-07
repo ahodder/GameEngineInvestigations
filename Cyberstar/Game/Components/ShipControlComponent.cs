@@ -1,5 +1,5 @@
 using System.Numerics;
-using Cyberstar.ECS;
+using Cyberstar.Engine.ECS;
 using Cyberstar.Extensions.IO;
 
 namespace Cyberstar.Game.Components;

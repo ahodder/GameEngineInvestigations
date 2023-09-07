@@ -1,7 +1,7 @@
 using Cyberstar.Core;
 using Cyberstar.Engine;
 using Cyberstar.Engine.Scenes;
-using Cyberstar.UI;
+using Cyberstar.Engine.UI;
 using Raylib_cs;
 
 namespace Cyberstar.Game.Scenes;

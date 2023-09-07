@@ -1,4 +1,4 @@
-using Cyberstar.ECS;
+using Cyberstar.Engine.ECS;
 
 namespace Cyberstar.Game.Components;
 
