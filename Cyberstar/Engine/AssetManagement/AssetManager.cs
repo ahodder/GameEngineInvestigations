@@ -8,6 +8,7 @@ namespace Cyberstar.Engine.AssetManagement;
 public class AssetManager
 {
     private const string FontDirectory = "fonts";
+    private const string ModelsDirectory = "models";
     private const string SpriteAtlasDirectory = "textures/sprite_atlases";
     private const string TexturesDirectory = "textures";
     private const string TracksDirectory = "audio/tracks";
@@ -20,7 +21,8 @@ public class AssetManager
 
     private readonly Dictionary<string, SpriteAtlas> _loadedAtlases = new();
     private readonly Dictionary<string, Music> _loadedMusic = new();
-
+    private readonly Dictionary<string, Model> _loadedModels = new ();
+    private readonly Dictionary<string, AnimationCollection> _loadedAnimations = new ();
 
     public AssetManager(ILogger logger, string rootDirectory)
     {
@@ -127,6 +129,47 @@ public class AssetManager
 
         var stream = Raylib.LoadMusicStream(audioPath);
         music = stream;
+        _loadedMusic[trackName] = stream;
+        return true;
+    }
+
+    public bool TryLoadModel(string modelName, out Model outModel)
+    {
+        if (_loadedModels.TryGetValue(modelName, out outModel))
+            return true;
+
+        var modelDirectory = Path.Join(Directory.GetCurrentDirectory(), _rootDirectory, ModelsDirectory);
+        var modelPath = Path.Join(modelDirectory, modelName);
+        if (!Path.Exists(modelPath))
+        {
+            outModel = default;
+            return false;
+        }
+
+        var model = Raylib.LoadModel(modelPath);
+        outModel = model;
+        _loadedModels[modelName] = model;
+        return true;
+    }
+
+    public bool TryLoadAnimations(string modelName, out AnimationCollection outAnimations)
+    {
+        if (_loadedAnimations.TryGetValue(modelName, out outAnimations))
+            return true;
+        
+        var modelDirectory = Path.Join(Directory.GetCurrentDirectory(), _rootDirectory, ModelsDirectory);
+        var modelPath = Path.Join(modelDirectory, modelName);
+        if (!Path.Exists(modelPath))
+        {
+            outAnimations = default;
+            return false;
+        }
+
+        uint anims = 0;
+        var animations = Raylib.LoadModelAnimations(modelPath, ref anims);
+        var collection = new AnimationCollection(animations);
+        outAnimations = collection;
+        _loadedAnimations[modelName] = collection;
         return true;
     }
 }

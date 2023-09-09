@@ -18,6 +18,7 @@ public class MainMenuScene : Scene
         layout.AddView(CreateButton("Load Game", OnLoadGameClicked));
         layout.AddView(CreateButton("Settings", OnSettingsClicked));
         layout.AddView(CreateButton("Exit", OnExitClicked));
+        layout.AddView(CreateButton("3D Models", On3dModelViewerClicked));
         layout.AddView(CreateButton("Entity Editor", OnEntityEditorClicked));
 
         _uiRenderer = new UiRenderer(layout, 0, 0, 500, 500);
@@ -63,6 +64,11 @@ public class MainMenuScene : Scene
     public void OnExitClicked()
     {
         Engine.SceneManager.ApplicationCloseRequested = true;
+    }
+
+    public void On3dModelViewerClicked()
+    {
+        Engine.SceneManager.BeginLoadActiveScene(new ModelScene(Engine));
     }
 
     public void OnEntityEditorClicked()

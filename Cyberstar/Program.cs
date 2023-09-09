@@ -7,6 +7,7 @@ using Raylib_cs;
 
 var windowData = new WindowData("Cyberstar", 1200, 800);
 Raylib.InitWindow(windowData.Width, windowData.Height, windowData.WindowName);
+// Raylib.SetTargetFPS(60);
 
 var logger = Log.Instance = new ConsoleLogger();
 var assets = new AssetManager(logger, "assets");
