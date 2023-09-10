@@ -18,6 +18,7 @@ public class MainMenuScene : Scene
         layout.AddView(CreateButton("Load Game", OnLoadGameClicked));
         layout.AddView(CreateButton("Settings", OnSettingsClicked));
         layout.AddView(CreateButton("Exit", OnExitClicked));
+        layout.AddView(CreateButton("Procedural Animation Tests", () => Engine.SceneManager.BeginLoadActiveScene(new PinWheelTestScene(Engine))));
         layout.AddView(CreateButton("Entity Editor", OnEntityEditorClicked));
 
         _uiRenderer = new UiRenderer(layout, 0, 0, 500, 500);
