@@ -8,8 +8,11 @@ namespace Cyberstar.Game.Scenes;
 
 public class PinWheelTestScene : Scene
 {
+    private Camera3D _camera;
     private Armature _armature;
     private PinWheel _wheel;
+    private Ground _ground;
+    private SpringCapsule _springCapsule;
     
     public PinWheelTestScene(IEngine engine) : base(engine)
     {
@@ -29,6 +32,11 @@ public class PinWheelTestScene : Scene
                 new Bone(70f),
                 new Bone(80f),
             });
+
+        _ground = new Ground();
+        _springCapsule = new SpringCapsule(new Vector3(0, 2, 0), 1f);
+        
+        _camera = new Camera3D(new Vector3(0, 10, -15), Vector3.Zero, Vector3.UnitY, 90, CameraProjection.CAMERA_PERSPECTIVE);
     }
 
     public override void PerformTick(FrameTiming frameTiming)
@@ -44,8 +52,41 @@ public class PinWheelTestScene : Scene
         _wheel.center.Y = _wheel.armRadius;
         
         _armature.Update(frameTiming);
+        
+        _ground.Update(frameTiming, _camera);
+        _springCapsule.Update(frameTiming, _camera);
     }
 
+    private struct Ground
+    {
+        public void Update(FrameTiming frameTiming, Camera3D camera)
+        {
+            Raylib.BeginMode3D(camera);
+            Raylib.DrawPlane(Vector3.Zero, new Vector2(10, 10), Color.GRAY);
+            Raylib.EndMode3D();
+        }
+    }
+
+    private struct SpringCapsule
+    {
+        private Vector3 _groundBumperOrigin;
+        private float _groundBumperRadius;
+
+        public SpringCapsule(Vector3 groundBumperOrigin, float groundBumperRadius)
+        {
+            _groundBumperOrigin = groundBumperOrigin;
+            _groundBumperRadius = groundBumperRadius;
+        }
+
+        public void Update(FrameTiming frameTiming, Camera3D camera)
+        {
+            Raylib.BeginMode3D(camera);
+            Raylib.DrawSphere(_groundBumperOrigin, 0.25f, Color.GOLD);
+            Raylib.DrawSphereWires(_groundBumperOrigin, _groundBumperRadius, 5, 5, Color.GREEN);            
+            Raylib.EndMode3D();
+        }
+    }
+    
     private struct Armature
     {
         private const int NodeRadius = 7;
@@ -53,10 +94,6 @@ public class PinWheelTestScene : Scene
         public Bone[] Bones { get; }
 
         public float MaxLength { get; }
-
-        private int _selectedNode;
-        private bool _isMouseDown;
-        private Vector2 _previousCoords;
 
         public Armature(Vector3 origin, Bone[] bones)
         {
@@ -67,7 +104,6 @@ public class PinWheelTestScene : Scene
             foreach (var bone in bones)
                 maxLen += bone.BoneLength;
             MaxLength = maxLen;
-
 
             var o = Origin;
             Bones[0].Origin = Origin;
@@ -84,42 +120,7 @@ public class PinWheelTestScene : Scene
             var my = Raylib.GetMouseY();
             
             if (Raylib.IsMouseButtonDown(MouseButton.MOUSE_BUTTON_LEFT))
-            {
-                var bas = Bones[^1].Origin;
-
-                // This has the chain chase the mouse
-                var target = new Vector3(mx, my, 0);
-                for (var i = 0; i < Bones.Length - 1; i++)
-                {
-                    var r = Reach(Bones[i].Origin, Bones[i + 1].Origin, target);
-                    Bones[i].Origin = r.Item1;
-                    target = r.Item2;
-                }
-
-                Bones[^1].Origin = target;
-
-                // This anchors the chain to the last bone.
-                target = bas;
-                for (var i = Bones.Length - 1; i > 0; i--)
-                {
-                    var r = Reach(Bones[i].Origin, Bones[i - 1].Origin, target);
-                    Bones[i].Origin = r.Item1;
-                    target = r.Item2;
-                }
-                
-                Bones[0].Origin = target;
-
-
-                // var nv = new Vector3(mx - _previousCoords.X, my - _previousCoords.Y, 0);
-                // for (var i = 0; i < Bones.Length - 1; i++)
-                // {
-                //     var r = Reach(Bones[i].Origin, Bones[i + 1].Origin, nv);
-                //     Bones[i].Origin = r.Item1;
-                //     nv = r.Item2;
-                // }
-                //
-                // Bones[Bones.Length - 1].Origin = nv;
-            }
+                ForwardAndBackwardReachingInverseKinematics(new Vector3(mx, my, 0));
 
             for (var i = 0; i < Bones.Length - 1; i++)
             {
@@ -132,23 +133,31 @@ public class PinWheelTestScene : Scene
             Raylib.DrawCircleLines((int)Bones[^1].Origin.X, (int)Bones[^1].Origin.Y, NodeRadius, Color.GOLD);
         }
 
-        /// <summary>
-        /// Returns the bone index + 1 if the coords are in the origin and -1 if not in a node at all.
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        public int DetectSelectedNode(int x, int y)
+        private void ForwardAndBackwardReachingInverseKinematics(Vector3 mousePosition)
         {
-            var coords = new Vector3(x, y, 0);
-            bool InNode(Vector3 v, float radius) => (coords - v).Length() <= radius;
-            
-            for (var i = 0; i < Bones.Length; i++)
+            var bas = Bones[^1].Origin;
+
+            // This has the chain chase the mouse
+            var target = mousePosition;
+            for (var i = 0; i < Bones.Length - 1; i++)
             {
-                if (InNode(Bones[i].Origin, NodeRadius)) return i * 2;
+                var r = Reach(Bones[i].Origin, Bones[i + 1].Origin, target);
+                Bones[i].Origin = r.Item1;
+                target = r.Item2;
             }
 
-            return -1;
+            Bones[^1].Origin = target;
+
+            // This anchors the chain to the last bone.
+            target = bas;
+            for (var i = Bones.Length - 1; i > 0; i--)
+            {
+                var r = Reach(Bones[i].Origin, Bones[i - 1].Origin, target);
+                Bones[i].Origin = r.Item1;
+                target = r.Item2;
+            }
+                
+            Bones[0].Origin = target;
         }
 
         private (Vector3, Vector3) Reach(Vector3 head, Vector3 tail, Vector3 target)
@@ -170,10 +179,8 @@ public class PinWheelTestScene : Scene
     private struct Bone
     {
         public float BoneLength { get; }
-        
         public Vector3 Origin { get; set; }
         
-
         public Bone(float boneLength)
         {
             BoneLength = boneLength;
