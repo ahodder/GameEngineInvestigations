@@ -20,15 +20,15 @@ public class PinWheelTestScene : Scene
             armRadius = radius,
         };
 
-        _armature = new Armature
-        {
-            origin = new Vector3(Engine.WindowData.Width / 2f, Engine.WindowData.Height - 90f, 0),
-            bones = new[]
+        _armature = new Armature(
+            new Vector3(Engine.WindowData.Width / 2f, Engine.WindowData.Height / 2f + 90f, 0),
+            new[]
             {
-                new Bone(50f, 0f),
-                new Bone(40f, 0),
-            }
-        };
+                new Bone(40f),
+                new Bone(50f),
+                new Bone(70f),
+                new Bone(80f),
+            });
     }
 
     public override void PerformTick(FrameTiming frameTiming)
@@ -42,34 +42,141 @@ public class PinWheelTestScene : Scene
         _wheel.floor = Engine.WindowData.Height;
         _wheel.Update(frameTiming);
         _wheel.center.Y = _wheel.armRadius;
+        
+        _armature.Update(frameTiming);
     }
 
     private struct Armature
     {
-        public Vector3 origin;
-        public Bone[] bones;
+        private const int NodeRadius = 7;
+        public Vector3 Origin { get; }
+        public Bone[] Bones { get; }
+
+        public float MaxLength { get; }
+
+        private int _selectedNode;
+        private bool _isMouseDown;
+        private Vector2 _previousCoords;
+
+        public Armature(Vector3 origin, Bone[] bones)
+        {
+            Origin = origin;
+            Bones = bones;
+
+            var maxLen = 0f;
+            foreach (var bone in bones)
+                maxLen += bone.BoneLength;
+            MaxLength = maxLen;
+
+
+            var o = Origin;
+            Bones[0].Origin = Origin;
+            for (var i = 1; i < Bones.Length; i++)
+            {
+                o = Vector3.UnitX * Bones[i - 1].BoneLength + o;
+                Bones[i].Origin = o;
+            }
+        }
+
+        public void Update(FrameTiming frameTiming)
+        {
+            var mx = Raylib.GetMouseX();
+            var my = Raylib.GetMouseY();
+            
+            if (Raylib.IsMouseButtonDown(MouseButton.MOUSE_BUTTON_LEFT))
+            {
+                var bas = Bones[^1].Origin;
+
+                // This has the chain chase the mouse
+                var target = new Vector3(mx, my, 0);
+                for (var i = 0; i < Bones.Length - 1; i++)
+                {
+                    var r = Reach(Bones[i].Origin, Bones[i + 1].Origin, target);
+                    Bones[i].Origin = r.Item1;
+                    target = r.Item2;
+                }
+
+                Bones[^1].Origin = target;
+
+                // This anchors the chain to the last bone.
+                target = bas;
+                for (var i = Bones.Length - 1; i > 0; i--)
+                {
+                    var r = Reach(Bones[i].Origin, Bones[i - 1].Origin, target);
+                    Bones[i].Origin = r.Item1;
+                    target = r.Item2;
+                }
+                
+                Bones[0].Origin = target;
+
+
+                // var nv = new Vector3(mx - _previousCoords.X, my - _previousCoords.Y, 0);
+                // for (var i = 0; i < Bones.Length - 1; i++)
+                // {
+                //     var r = Reach(Bones[i].Origin, Bones[i + 1].Origin, nv);
+                //     Bones[i].Origin = r.Item1;
+                //     nv = r.Item2;
+                // }
+                //
+                // Bones[Bones.Length - 1].Origin = nv;
+            }
+
+            for (var i = 0; i < Bones.Length - 1; i++)
+            {
+                var o1 = Bones[i].Origin;
+                var o2 = Bones[i + 1].Origin;
+                Raylib.DrawCircleLines((int)o1.X, (int)o1.Y, NodeRadius, Color.BLUE);
+                Raylib.DrawLine((int)o1.X, (int)o1.Y, (int)o2.X, (int)o2.Y, Color.BLUE);
+            }
+            
+            Raylib.DrawCircleLines((int)Bones[^1].Origin.X, (int)Bones[^1].Origin.Y, NodeRadius, Color.GOLD);
+        }
 
         /// <summary>
-        /// FABRIKIK (Forward and Backward Reaching Inverse Kinematics) is used to attempt
-        /// to align an armature towards some target point.
+        /// Returns the bone index + 1 if the coords are in the origin and -1 if not in a node at all.
         /// </summary>
-        /// <param name="target"></param>
-        /// <param name="tolerance"></param>
-        public void PerformFabrikik(Vector2 target, float tolerance)
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public int DetectSelectedNode(int x, int y)
         {
+            var coords = new Vector3(x, y, 0);
+            bool InNode(Vector3 v, float radius) => (coords - v).Length() <= radius;
             
+            for (var i = 0; i < Bones.Length; i++)
+            {
+                if (InNode(Bones[i].Origin, NodeRadius)) return i * 2;
+            }
+
+            return -1;
+        }
+
+        private (Vector3, Vector3) Reach(Vector3 head, Vector3 tail, Vector3 target)
+        {
+            var cdx = tail.X - head.X;
+            var cdy = tail.Y - head.Y;
+            var cdist = MathF.Sqrt(cdx * cdx + cdy * cdy);
+
+            var sdx = tail.X - target.X;
+            var sdy = tail.Y - target.Y;
+            var sdist = MathF.Sqrt(sdx * sdx + sdy * sdy);
+
+            var scale = cdist / sdist;
+
+            return (target, new Vector3(target.X + sdx * scale, target.Y + sdy * scale, 0));
         }
     }
 
     private struct Bone
     {
-        public float boneLength;
-        public float rotation;
+        public float BoneLength { get; }
+        
+        public Vector3 Origin { get; set; }
+        
 
-        public Bone(float boneLength, float rotation)
+        public Bone(float boneLength)
         {
-            this.boneLength = boneLength;
-            this.rotation = rotation;
+            BoneLength = boneLength;
         }
     }
 
